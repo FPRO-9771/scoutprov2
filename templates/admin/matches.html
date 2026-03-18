@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Matches — Admin — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('admin.index') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">Matches</h2>
+</div>
+
+<p class="text-muted">Event: <strong>{{ event.name if event else 'None selected' }}</strong></p>
+
+<!-- Create Match -->
+<div class="card mb-3">
+    <div class="card-header fw-bold">Create Match</div>
+    <div class="card-body">
+        <form action="{{ url_for('admin.create_match') }}" method="post">
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Match Number</label>
+                <input type="number" name="number" class="form-control" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold text-danger">Red Alliance (3 team numbers)</label>
+                <div class="d-flex gap-2">
+                    <input type="number" name="red1" class="form-control" placeholder="Red 1" required>
+                    <input type="number" name="red2" class="form-control" placeholder="Red 2" required>
+                    <input type="number" name="red3" class="form-control" placeholder="Red 3" required>
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold text-primary">Blue Alliance (3 team numbers)</label>
+                <div class="d-flex gap-2">
+                    <input type="number" name="blue1" class="form-control" placeholder="Blue 1" required>
+                    <input type="number" name="blue2" class="form-control" placeholder="Blue 2" required>
+                    <input type="number" name="blue3" class="form-control" placeholder="Blue 3" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Create Match</button>
+        </form>
+    </div>
+</div>
+
+<!-- Existing Matches -->
+<div class="card">
+    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+        Matches
+        <span class="badge bg-primary">{{ matches|length }}</span>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for match in matches %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fw-bold">Match {{ match.number }}</span>
+                <button class="btn btn-sm btn-outline-secondary" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#edit-{{ match.id }}">
+                    <i class="bi bi-pencil"></i> Edit
+                </button>
+            </div>
+            <div class="d-flex gap-3 small">
+                <span class="text-danger"><strong>Red:</strong> {{ match.red_teams|join(', ') }}</span>
+                <span class="text-primary"><strong>Blue:</strong> {{ match.blue_teams|join(', ') }}</span>
+            </div>
+            <!-- Edit Form (collapsed) -->
+            <div class="collapse mt-2" id="edit-{{ match.id }}">
+                <form action="{{ url_for('admin.edit_match', match_id=match.id) }}" method="post">
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-danger">Red Alliance</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="red1" class="form-control form-control-sm" value="{{ match.red_teams[0] if match.red_teams|length > 0 else '' }}">
+                            <input type="number" name="red2" class="form-control form-control-sm" value="{{ match.red_teams[1] if match.red_teams|length > 1 else '' }}">
+                            <input type="number" name="red3" class="form-control form-control-sm" value="{{ match.red_teams[2] if match.red_teams|length > 2 else '' }}">
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label small fw-bold text-primary">Blue Alliance</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="blue1" class="form-control form-control-sm" value="{{ match.blue_teams[0] if match.blue_teams|length > 0 else '' }}">
+                            <input type="number" name="blue2" class="form-control form-control-sm" value="{{ match.blue_teams[1] if match.blue_teams|length > 1 else '' }}">
+                            <input type="number" name="blue3" class="form-control form-control-sm" value="{{ match.blue_teams[2] if match.blue_teams|length > 2 else '' }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not matches %}
+        <div class="list-group-item text-muted">No matches at this event.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

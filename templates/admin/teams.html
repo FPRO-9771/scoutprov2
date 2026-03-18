@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Teams — Admin — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('admin.index') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">Teams</h2>
+</div>
+
+<p class="text-muted">Event: <strong>{{ event.name if event else 'None selected' }}</strong></p>
+
+<!-- Add Team -->
+<div class="card mb-3">
+    <div class="card-header fw-bold">Add Team to Event</div>
+    <div class="card-body">
+        <form action="{{ url_for('admin.add_team') }}" method="post" class="d-flex gap-2">
+            <input type="number" name="number" class="form-control" placeholder="Team number" required>
+            <input type="text" name="name" class="form-control" placeholder="Team name (optional)">
+            <button type="submit" class="btn btn-success text-nowrap">Add</button>
+        </form>
+    </div>
+</div>
+
+<!-- Teams List -->
+<div class="card">
+    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+        Teams at Event
+        <span class="badge bg-primary">{{ teams|length }}</span>
+    </div>
+    <div class="list-group list-group-flush">
+        {% for team in teams %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <div>
+                <span class="fw-bold">{{ team.number }}</span>
+                <span class="text-muted ms-2">{{ team.name or '' }}</span>
+            </div>
+            <form action="{{ url_for('admin.unlink_team') }}" method="post" class="d-inline">
+                <input type="hidden" name="team_number" value="{{ team.number }}">
+                <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+        {% if not teams %}
+        <div class="list-group-item text-muted">No teams at this event.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

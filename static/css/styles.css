@@ -1,0 +1,242 @@
+/* SD Glitch brand font */
+@font-face {
+    font-family: 'SD Glitch';
+    src: url('/static/fonts/gpro-brand.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Color palette — matches GPro */
+:root {
+    --bs-primary: #2F055A;
+    --bs-primary-rgb: 47, 5, 90;
+    --bs-info: #5a7a8a;
+    --bs-info-rgb: 90, 122, 138;
+    --bs-success: #5a8a6e;
+    --bs-success-rgb: 90, 138, 110;
+    --bs-warning: #c9a87c;
+    --bs-warning-rgb: 201, 168, 124;
+    --bs-danger: #a85a6e;
+    --bs-danger-rgb: 168, 90, 110;
+}
+
+body {
+    font-family: 'Avenir', 'Nunito', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Brand logo */
+.brand-logo {
+    font-family: 'SD Glitch', sans-serif;
+    font-size: 1.5rem;
+    color: #fff !important;
+    text-decoration: none;
+}
+
+/* Navbar */
+.navbar {
+    background-color: var(--bs-primary) !important;
+}
+
+.navbar .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.navbar .nav-link:hover {
+    color: #fff !important;
+}
+
+.navbar .navbar-text {
+    color: rgba(255, 255, 255, 0.75) !important;
+    font-size: 0.85rem;
+}
+
+/* Bootstrap button overrides */
+.btn-primary {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-primary:hover {
+    background-color: #3d0a75;
+    border-color: #3d0a75;
+}
+
+.btn-outline-primary {
+    color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.btn-info {
+    background-color: var(--bs-info);
+    border-color: var(--bs-info);
+    color: #fff;
+}
+
+.btn-info:hover {
+    background-color: #4d6976;
+    border-color: #4d6976;
+    color: #fff;
+}
+
+.btn-success {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+}
+
+.btn-success:hover {
+    background-color: #4d775e;
+    border-color: #4d775e;
+}
+
+.btn-warning {
+    background-color: var(--bs-warning);
+    border-color: var(--bs-warning);
+    color: #fff;
+}
+
+.btn-warning:hover {
+    background-color: #b8956a;
+    border-color: #b8956a;
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: var(--bs-danger);
+    border-color: var(--bs-danger);
+}
+
+.btn-danger:hover {
+    background-color: #944d5e;
+    border-color: #944d5e;
+}
+
+/* Mobile-first: large touch targets */
+.btn {
+    min-height: 48px;
+    padding: 0.625rem 1.25rem;
+    font-size: 1rem;
+}
+
+.btn-sm {
+    min-height: 36px;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Form controls — larger on mobile */
+.form-control, .form-select {
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+/* Cards */
+.card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 0.5rem;
+}
+
+.card-header {
+    background-color: rgba(47, 5, 90, 0.06);
+    border-bottom: 1px solid rgba(47, 5, 90, 0.1);
+}
+
+/* User/event selection cards */
+.select-card {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.select-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(47, 5, 90, 0.15);
+}
+
+.select-card.active {
+    border: 2px solid var(--bs-primary);
+}
+
+/* List group items — bigger tap targets */
+.list-group-item {
+    padding: 0.875rem 1.25rem;
+}
+
+/* Flash messages */
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* Footer */
+.footer {
+    color: #6c757d;
+    font-size: 0.85rem;
+    padding: 1rem 0;
+    text-align: center;
+}
+
+/* Login page centering */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-card {
+    max-width: 400px;
+    width: 100%;
+}
+
+/* Badge overrides */
+.bg-primary {
+    background-color: var(--bs-primary) !important;
+}
+
+/* Focus states */
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(47, 5, 90, 0.25);
+}
+
+/* Home screen action cards */
+.action-card {
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(47, 5, 90, 0.15);
+}
+
+.action-card-disabled {
+    cursor: default;
+    opacity: 0.5;
+}
+
+.action-card-disabled:hover {
+    transform: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon {
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.action-label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--bs-primary);
+}

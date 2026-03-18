@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Team {{ team.number }} — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="fw-bold text-primary mb-0">Team {{ team.number }}</h2>
+        <span class="text-muted">{{ team.name or '' }}</span>
+    </div>
+</div>
+
+<!-- Robot Build -->
+<div class="card mb-3">
+    <div class="card-header fw-bold">Robot Build</div>
+    <div class="card-body">
+        {% if robot %}
+            <div class="d-flex flex-wrap gap-2">
+                {% if robot.scouting_data.get('drive_system') %}
+                    <span class="badge bg-primary">{{ robot.scouting_data.drive_system|title }}</span>
+                {% endif %}
+                {% if robot.scouting_data.get('ground_intake') is not none %}
+                    <span class="badge bg-info">Intake: {{ 'Yes' if robot.scouting_data.ground_intake else 'No' }}</span>
+                {% endif %}
+                {% if robot.scouting_data.get('shooter_system') %}
+                    <span class="badge bg-warning text-dark">{{ robot.scouting_data.shooter_system|title }}</span>
+                {% endif %}
+                {% if robot.scouting_data.get('climb') %}
+                    <span class="badge bg-success">Climb: {{ robot.scouting_data.climb }}</span>
+                {% endif %}
+            </div>
+        {% else %}
+            <p class="text-muted mb-2">Not yet scouted</p>
+            <a href="{{ url_for('scouting.robot_input', team_number=team.number) }}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-wrench-adjustable"></i> Scout this robot
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Match History -->
+<div class="card mb-3">
+    <div class="card-header fw-bold">Match History</div>
+    <div class="card-body">
+        {% if outcomes %}
+        <div class="table-responsive">
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>Match</th>
+                        <th>A-Balls</th>
+                        <th>A-Climb</th>
+                        <th>T-Balls</th>
+                        <th>T-Def</th>
+                        <th>T-Climb</th>
+                        <th>By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for outcome in outcomes %}
+                    <tr>
+                        <td class="fw-bold">{{ outcome.match.number }}</td>
+                        <td>{{ outcome.scouting_data.get('auton_balls', '-') }}</td>
+                        <td>{{ outcome.scouting_data.get('auton_climb', '-') }}</td>
+                        <td>{{ outcome.scouting_data.get('teleop_balls', '-') }}</td>
+                        <td>{{ outcome.scouting_data.get('teleop_defense', '-') }}</td>
+                        <td>{{ outcome.scouting_data.get('teleop_climb', '-') }}</td>
+                        <td class="text-muted">{{ scouts.get(outcome.user_id, '?') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if averages %}
+                <tfoot class="table-light">
+                    <tr class="fw-bold">
+                        <td>AVG</td>
+                        <td>{{ averages.get('auton_balls', '-') }}</td>
+                        <td>{{ averages.get('auton_climb', '-') }}</td>
+                        <td>{{ averages.get('teleop_balls', '-') }}</td>
+                        <td>{{ averages.get('teleop_defense', '-') }}</td>
+                        <td>{{ averages.get('teleop_climb', '-') }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+        </div>
+        {% else %}
+            <p class="text-muted mb-0">No match scouting data yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- TBA Data -->
+{% if rank or past_events %}
+<div class="card mb-3">
+    <div class="card-header fw-bold">TBA Data</div>
+    <div class="card-body">
+        {% if rank %}
+        <div class="mb-2">
+            <small class="text-muted fw-bold">Current Event Rank:</small>
+            <span class="fw-bold">#{{ rank }}</span>
+        </div>
+        {% endif %}
+        {% if past_events %}
+        <div>
+            <small class="text-muted fw-bold d-block">Past Events:</small>
+            {% for evt in past_events %}
+            <small class="d-block">{{ evt.name }} — Rank #{{ evt.rank }}</small>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

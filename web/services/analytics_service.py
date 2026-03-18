@@ -1,0 +1,129 @@
+from sqlalchemy import func
+
+from web.extensions import db
+from web.models.outcome import Outcome
+from web.models.match import Match
+from web.models.robot import Robot
+from web.models.event import Event
+from web.models.team import Team
+
+
+class AnalyticsService:
+
+    FIELDS = ['auton_balls', 'auton_climb', 'teleop_balls', 'teleop_defense', 'teleop_climb']
+
+    @staticmethod
+    def get_team_match_averages(team_id, event_id):
+        outcomes = (
+            Outcome.query
+            .join(Match, Outcome.match_id == Match.id)
+            .filter(Match.event_id == event_id, Outcome.team_id == team_id)
+            .all()
+        )
+        if not outcomes:
+            return None
+
+        totals = {f: 0 for f in AnalyticsService.FIELDS}
+        counts = {f: 0 for f in AnalyticsService.FIELDS}
+
+        for o in outcomes:
+            for f in AnalyticsService.FIELDS:
+                val = o.scouting_data.get(f)
+                if val is not None:
+                    totals[f] += val
+                    counts[f] += 1
+
+        averages = {}
+        for f in AnalyticsService.FIELDS:
+            averages[f] = round(totals[f] / counts[f], 1) if counts[f] > 0 else None
+
+        return averages
+
+    @staticmethod
+    def get_team_match_summary(team_id, event_id):
+        outcomes = (
+            Outcome.query
+            .join(Match, Outcome.match_id == Match.id)
+            .filter(Match.event_id == event_id, Outcome.team_id == team_id)
+            .all()
+        )
+        if not outcomes:
+            return None
+
+        result = {'count': len(outcomes)}
+        for f in AnalyticsService.FIELDS:
+            values = [o.scouting_data.get(f) for o in outcomes if o.scouting_data.get(f) is not None]
+            if values:
+                result[f] = {
+                    'avg': round(sum(values) / len(values), 1),
+                    'min': min(values),
+                    'max': max(values),
+                }
+            else:
+                result[f] = None
+
+        return result
+
+    @staticmethod
+    def get_team_outcomes(team_id, event_id):
+        return (
+            Outcome.query
+            .join(Match, Outcome.match_id == Match.id)
+            .filter(Match.event_id == event_id, Outcome.team_id == team_id)
+            .order_by(Match.number)
+            .all()
+        )
+
+    @staticmethod
+    def get_unscouted_robots(event_id, game_id):
+        event = db.session.get(Event, event_id)
+        if not event:
+            return []
+        scouted_ids = {r.team_id for r in Robot.query.filter_by(game_id=game_id).all()}
+        return [t for t in sorted(event.teams, key=lambda t: t.number) if t.id not in scouted_ids]
+
+    @staticmethod
+    def get_unscouted_matches(event_id):
+        matches = Match.query.filter_by(event_id=event_id).order_by(Match.number).all()
+        result = []
+        for match in matches:
+            all_team_numbers = (match.red_teams or []) + (match.blue_teams or [])
+            total = len(all_team_numbers)
+            # Get team IDs for the numbers in this match
+            teams = Team.query.filter(Team.number.in_(all_team_numbers)).all()
+            team_map = {t.number: t for t in teams}
+            scouted_team_ids = {
+                o.team_id for o in
+                Outcome.query.filter(Outcome.match_id == match.id).all()
+            }
+            unscouted = [team_map[n] for n in all_team_numbers if n in team_map and team_map[n].id not in scouted_team_ids]
+            scouted_count = total - len(unscouted)
+            if unscouted:
+                result.append({
+                    'match': match,
+                    'scouted': scouted_count,
+                    'total': total,
+                    'unscouted_teams': unscouted,
+                })
+        return result
+
+    @staticmethod
+    def get_all_team_averages(event_id):
+        event = db.session.get(Event, event_id)
+        if not event:
+            return []
+        results = []
+        for team in sorted(event.teams, key=lambda t: t.number):
+            avgs = AnalyticsService.get_team_match_averages(team.id, event_id)
+            outcomes = (
+                Outcome.query
+                .join(Match, Outcome.match_id == Match.id)
+                .filter(Match.event_id == event_id, Outcome.team_id == team.id)
+                .all()
+            )
+            results.append({
+                'team': team,
+                'averages': avgs or {},
+                'match_count': len(outcomes),
+            })
+        return results

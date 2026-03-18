@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Scout a Match — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">Scout a Match</h2>
+</div>
+
+<p class="text-muted mb-3">{{ matches|length }} matches at {{ session.get('event_name') }}</p>
+
+<div class="row g-2">
+    {% for match in matches %}
+    <div class="col" style="flex: 0 0 20%; max-width: 20%;">
+        {% set status = scout_status.get(match.id, 'none') %}
+        <a href="{{ url_for('scouting.match_teams', match_id=match.id) }}"
+           class="btn w-100 fw-bold match-btn
+                  {% if status == 'all' %}btn-success
+                  {% elif status == 'partial' %}btn-warning
+                  {% else %}btn-outline-secondary{% endif %}">
+            {{ match.number }}
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not matches %}
+<div class="text-center text-muted py-5">
+    <p>No matches found at this event.</p>
+    <p>Import matches using <code>flask import-matches &lt;event_key&gt;</code></p>
+</div>
+{% endif %}
+
+<div class="mt-4 d-flex gap-3 justify-content-center text-muted small">
+    <span><span class="badge bg-success">&nbsp;</span> All scouted</span>
+    <span><span class="badge bg-warning">&nbsp;</span> Partial</span>
+    <span><span class="badge bg-secondary">&nbsp;</span> None</span>
+</div>
+{% endblock %}

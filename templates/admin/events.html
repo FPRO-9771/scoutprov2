@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Events — Admin — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('admin.index') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">Events</h2>
+</div>
+
+<!-- Existing Events -->
+{% for event in events %}
+<div class="card mb-3">
+    <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+        {{ event.name }}
+        <span class="badge bg-secondary">{{ event.teams|length }} teams</span>
+    </div>
+    <div class="card-body">
+        <form action="{{ url_for('admin.update_event', event_id=event.id) }}" method="post">
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Name</label>
+                <input type="text" name="name" class="form-control" value="{{ event.name }}">
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <label class="form-label small fw-bold">Location</label>
+                    <input type="text" name="location" class="form-control" value="{{ event.location or '' }}">
+                </div>
+                <div class="col">
+                    <label class="form-label small fw-bold">Date</label>
+                    <input type="date" name="date" class="form-control" value="{{ event.date or '' }}">
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold">TBA Event Key</label>
+                <input type="text" name="tba_event_key" class="form-control" value="{{ event.tba_event_key or '' }}">
+            </div>
+            <button type="submit" class="btn btn-sm btn-primary">Save Changes</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Create New Event -->
+<div class="card">
+    <div class="card-header fw-bold">Create New Event</div>
+    <div class="card-body">
+        <form action="{{ url_for('admin.create_event') }}" method="post">
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Name</label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Game</label>
+                <select name="game_id" class="form-select" required>
+                    {% for game in games %}
+                    <option value="{{ game.id }}">{{ game.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row mb-2">
+                <div class="col">
+                    <label class="form-label small fw-bold">Location</label>
+                    <input type="text" name="location" class="form-control">
+                </div>
+                <div class="col">
+                    <label class="form-label small fw-bold">Date</label>
+                    <input type="date" name="date" class="form-control">
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold">TBA Event Key</label>
+                <input type="text" name="tba_event_key" class="form-control" placeholder="e.g. 2025mitraverse">
+            </div>
+            <button type="submit" class="btn btn-success">Create Event</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

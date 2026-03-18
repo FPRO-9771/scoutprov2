@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Scout Robot — Team {{ team.number }} — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('scouting.robot_list') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="fw-bold text-primary mb-0">Team {{ team.number }}</h2>
+        <small class="text-muted">{{ team.name or '' }}</small>
+    </div>
+</div>
+
+<form id="robotForm" action="{{ url_for('scouting.robot_save', team_number=team.number) }}" method="post">
+
+    <!-- Drive System -->
+    <div class="card mb-3">
+        <div class="card-header fw-bold">Drive System</div>
+        <div class="card-body">
+            <div class="btn-group-toggle d-flex gap-2">
+                <input type="hidden" name="drive_system" value="{{ data.get('drive_system', '') }}">
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('drive_system') == 'tank' else 'btn-outline-primary' }}" data-value="tank">Tank</button>
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('drive_system') == 'swerve' else 'btn-outline-primary' }}" data-value="swerve">Swerve</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ground Intake -->
+    <div class="card mb-3">
+        <div class="card-header fw-bold">Ground Intake</div>
+        <div class="card-body">
+            <div class="btn-group-toggle d-flex gap-2">
+                <input type="hidden" name="ground_intake" value="{{ data.get('ground_intake', '') }}">
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('ground_intake') == 'yes' else 'btn-outline-primary' }}" data-value="yes">Yes</button>
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('ground_intake') == 'no' else 'btn-outline-primary' }}" data-value="no">No</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shooter System -->
+    <div class="card mb-3">
+        <div class="card-header fw-bold">Shooter System</div>
+        <div class="card-body">
+            <div class="btn-group-toggle d-flex gap-2">
+                <input type="hidden" name="shooter_system" value="{{ data.get('shooter_system', '') }}">
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('shooter_system') == 'fixed' else 'btn-outline-primary' }}" data-value="fixed">Fixed</button>
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('shooter_system') == 'turret' else 'btn-outline-primary' }}" data-value="turret">Turret</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Climb -->
+    <div class="card mb-3">
+        <div class="card-header fw-bold">Climb</div>
+        <div class="card-body">
+            <div class="btn-group-toggle d-flex gap-2">
+                <input type="hidden" name="climb" value="{{ data.get('climb', '') }}">
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('climb') == 'none' else 'btn-outline-primary' }}" data-value="none">None</button>
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('climb') == 'L1' else 'btn-outline-primary' }}" data-value="L1">L1</button>
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('climb') == 'L2' else 'btn-outline-primary' }}" data-value="L2">L2</button>
+                <button type="button" class="btn flex-fill {{ 'btn-primary' if data.get('climb') == 'L3' else 'btn-outline-primary' }}" data-value="L3">L3</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <button type="button" class="btn btn-success w-100 py-3 fw-bold" onclick="confirmSave('{{ team.number }}')">
+        <i class="bi bi-check-circle"></i> Save Scouting Data
+    </button>
+</form>
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <h5>Save scouting data for Team <span id="confirmTeamNumber"></span>?</h5>
+                <div class="mt-4 d-flex gap-2 justify-content-center">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="document.getElementById('robotForm').submit()">
+                        <i class="bi bi-check-lg"></i> Confirm
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/scouting.js') }}"></script>
+{% endblock %}

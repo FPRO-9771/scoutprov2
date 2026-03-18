@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Match {{ match.number }} Prep — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('matches.prep_list') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">Match {{ match.number }} Prep</h2>
+</div>
+
+{% macro render_team_card(team) %}
+{% set is_us = team.number == 9771 %}
+{% set avgs = averages.get(team.id) %}
+{% set robot = robots.get(team.id) %}
+{% set rank = rankings.get(team.number) %}
+{% set past = past_events.get(team.number, []) %}
+<div class="card mb-3 {{ 'border-warning border-2' if is_us else '' }}">
+    <div class="card-header d-flex justify-content-between align-items-center {{ 'bg-warning bg-opacity-25' if is_us else '' }}">
+        <div>
+            <span class="fw-bold fs-5">{{ team.number }}</span>
+            <span class="text-muted ms-2">{{ team.name or '' }}</span>
+        </div>
+        {% if is_us %}
+            <span class="badge bg-warning text-dark">Us</span>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <!-- Current Event Rank -->
+        {% if rank %}
+        <div class="mb-2">
+            <small class="text-muted fw-bold">Current Rank:</small>
+            <span class="fw-bold">#{{ rank }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Past Events -->
+        {% if past %}
+        <div class="mb-2">
+            <small class="text-muted fw-bold d-block">Past Events:</small>
+            {% for evt in past %}
+            <small class="d-block">{{ evt.name }} — Rank #{{ evt.rank }}</small>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Scouting Averages -->
+        {% if avgs %}
+        <div class="mb-2">
+            <small class="text-muted fw-bold d-block">Scouting Averages ({{ avgs.count }} matches):</small>
+            <div class="row g-1 mt-1">
+                {% if avgs.auton_balls %}
+                <div class="col-auto"><span class="badge bg-warning text-dark">A-Balls {{ avgs.auton_balls.avg }}</span></div>
+                {% endif %}
+                {% if avgs.auton_climb %}
+                <div class="col-auto"><span class="badge bg-info">A-Climb {{ avgs.auton_climb.avg }}</span></div>
+                {% endif %}
+                {% if avgs.teleop_balls %}
+                <div class="col-auto"><span class="badge bg-warning text-dark">T-Balls {{ avgs.teleop_balls.avg }}</span></div>
+                {% endif %}
+                {% if avgs.teleop_defense %}
+                <div class="col-auto"><span class="badge bg-success">T-Def {{ avgs.teleop_defense.avg }}</span></div>
+                {% endif %}
+                {% if avgs.teleop_climb %}
+                <div class="col-auto"><span class="badge bg-info">T-Climb {{ avgs.teleop_climb.avg }}</span></div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Robot Build -->
+        {% if robot %}
+        <div>
+            <small class="text-muted fw-bold d-block">Robot Build:</small>
+            <div class="mt-1">
+                {% if robot.drive_system %}<span class="badge bg-secondary me-1">{{ robot.drive_system|title }}</span>{% endif %}
+                {% if robot.ground_intake is not none %}<span class="badge bg-secondary me-1">Intake: {{ 'Yes' if robot.ground_intake else 'No' }}</span>{% endif %}
+                {% if robot.shooter_system %}<span class="badge bg-secondary me-1">{{ robot.shooter_system|title }}</span>{% endif %}
+                {% if robot.climb %}<span class="badge bg-secondary me-1">Climb: {{ robot.climb }}</span>{% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not avgs and not robot and not rank and not past %}
+        <small class="text-muted">No data available yet</small>
+        {% endif %}
+    </div>
+</div>
+{% endmacro %}
+
+<!-- Red Alliance -->
+<h5 class="text-danger fw-bold mb-2"><i class="bi bi-circle-fill"></i> Red Alliance</h5>
+{% for team in red_teams %}
+    {{ render_team_card(team) }}
+{% endfor %}
+
+<!-- Blue Alliance -->
+<h5 class="text-primary fw-bold mb-2 mt-4"><i class="bi bi-circle-fill"></i> Blue Alliance</h5>
+{% for team in blue_teams %}
+    {{ render_team_card(team) }}
+{% endfor %}
+{% endblock %}

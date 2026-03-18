@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Home — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h2 class="fw-bold text-primary mb-1">{{ session.get('event_name') }}</h2>
+    <p class="text-muted mb-0">Scouting as {{ session.get('username') }}</p>
+</div>
+
+<!-- Team Search -->
+<form action="{{ url_for('teams.search') }}" method="get" class="mb-4">
+    <div class="input-group">
+        <input type="number" name="q" class="form-control" placeholder="Search team number..." inputmode="numeric" required>
+        <button class="btn btn-primary" type="submit">
+            <i class="bi bi-search"></i> Go
+        </button>
+    </div>
+</form>
+
+<!-- Action Buttons -->
+<div class="row g-3">
+    <div class="col-6">
+        <a href="{{ url_for('matches.prep_list') }}" class="action-card card text-center text-decoration-none">
+            <div class="card-body py-4">
+                <i class="bi bi-clipboard-data action-icon text-info"></i>
+                <div class="action-label">Match Prep</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="{{ url_for('scouting.match_list') }}" class="action-card card text-center text-decoration-none">
+            <div class="card-body py-4">
+                <i class="bi bi-eye action-icon text-success"></i>
+                <div class="action-label">Scout a Match</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="{{ url_for('scouting.robot_list') }}" class="action-card card text-center text-decoration-none">
+            <div class="card-body py-4">
+                <i class="bi bi-wrench-adjustable action-icon text-warning"></i>
+                <div class="action-label">Scout a Robot</div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6">
+        <a href="{{ url_for('analytics.dashboard') }}" class="action-card card text-center text-decoration-none">
+            <div class="card-body py-4">
+                <i class="bi bi-bar-chart-line action-icon text-danger"></i>
+                <div class="action-label">Analytics</div>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}

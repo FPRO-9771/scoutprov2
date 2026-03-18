@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}TBA Sync — Admin — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('admin.index') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">TBA Sync</h2>
+</div>
+
+<p class="text-muted">Event: <strong>{{ event.name if event else 'None selected' }}</strong></p>
+
+{% if event and event.tba_event_key %}
+<div class="card mb-3">
+    <div class="card-header fw-bold">Sync Teams</div>
+    <div class="card-body">
+        <p class="text-muted small mb-2">Re-import all teams for this event from The Blue Alliance.</p>
+        <form action="{{ url_for('admin.sync_teams') }}" method="post">
+            <button type="submit" class="btn btn-info">
+                <i class="bi bi-cloud-download"></i> Sync Event Teams
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header fw-bold">Sync Matches</div>
+    <div class="card-body">
+        <p class="text-muted small mb-2">Re-import match schedule from The Blue Alliance.</p>
+        <form action="{{ url_for('admin.sync_matches') }}" method="post">
+            <button type="submit" class="btn btn-info">
+                <i class="bi bi-cloud-download"></i> Sync Matches
+            </button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> This event has no TBA event key configured. Set one in
+    <a href="{{ url_for('admin.events') }}">Event Management</a> to enable TBA sync.
+</div>
+{% endif %}
+{% endblock %}

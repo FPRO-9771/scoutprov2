@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+{% block title %}Analytics — ScoutPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center mb-3">
+    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <h2 class="fw-bold text-primary mb-0">Analytics</h2>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#gaps" type="button">Scouting Gaps</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold" data-bs-toggle="tab" data-bs-target="#performance" type="button">Performance</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Scouting Gaps -->
+    <div class="tab-pane fade show active" id="gaps" role="tabpanel">
+
+        <!-- Unscouted Robots -->
+        <div class="card mb-3">
+            <div class="card-header fw-bold d-flex justify-content-between align-items-center">
+                <span>Unscouted Robots</span>
+                <span class="badge bg-primary">{{ total_teams - unscouted_robots|length }} / {{ total_teams }} scouted</span>
+            </div>
+            <div class="card-body">
+                {% if unscouted_robots %}
+                <div class="list-group list-group-flush">
+                    {% for team in unscouted_robots %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <span class="fw-bold">{{ team.number }}</span>
+                            <span class="text-muted ms-2">{{ team.name or '' }}</span>
+                        </div>
+                        <a href="{{ url_for('scouting.robot_input', team_number=team.number) }}" class="btn btn-sm btn-outline-warning">
+                            Scout Now
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-success mb-0"><i class="bi bi-check-circle"></i> All robots scouted!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Unscouted Matches -->
+        <div class="card mb-3">
+            <div class="card-header fw-bold">Unscouted Match Outcomes</div>
+            <div class="card-body">
+                {% if unscouted_matches %}
+                {% for item in unscouted_matches %}
+                <div class="mb-3 pb-3 {{ '' if loop.last else 'border-bottom' }}">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold">Match {{ item.match.number }}</span>
+                        <span class="badge bg-warning text-dark">{{ item.scouted }} / {{ item.total }}</span>
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for team in item.unscouted_teams %}
+                        <a href="{{ url_for('scouting.match_input', match_id=item.match.id, team_number=team.number) }}"
+                           class="btn btn-sm btn-outline-secondary">
+                            {{ team.number }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-success mb-0"><i class="bi bi-check-circle"></i> All match outcomes scouted!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Summary -->
+    <div class="tab-pane fade" id="performance" role="tabpanel">
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0 sortable-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="sortable" data-col="0">Team # <i class="bi bi-arrow-down-up"></i></th>
+                                <th>Name</th>
+                                <th class="sortable" data-col="2">A-Balls <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="3">A-Climb <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="4">T-Balls <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="5">T-Def <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="6">T-Climb <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="7"># <i class="bi bi-arrow-down-up"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in team_averages %}
+                            <tr>
+                                <td class="fw-bold">
+                                    <a href="{{ url_for('teams.detail', number=row.team.number) }}" class="text-decoration-none">
+                                        {{ row.team.number }}
+                                    </a>
+                                </td>
+                                <td class="text-muted">{{ row.team.name or '' }}</td>
+                                {% set a = row.averages %}
+                                <td data-value="{{ a.get('auton_balls', -1) }}">
+                                    {% if a.get('auton_balls') is not none %}
+                                        <span class="{{ 'text-success fw-bold' if a.auton_balls >= 3 else 'text-danger' if a.auton_balls <= 1 else '' }}">{{ a.auton_balls }}</span>
+                                    {% else %}-{% endif %}
+                                </td>
+                                <td data-value="{{ a.get('auton_climb', -1) }}">
+                                    {% if a.get('auton_climb') is not none %}
+                                        <span class="{{ 'text-success fw-bold' if a.auton_climb >= 2 else 'text-danger' if a.auton_climb == 0 else '' }}">{{ a.auton_climb }}</span>
+                                    {% else %}-{% endif %}
+                                </td>
+                                <td data-value="{{ a.get('teleop_balls', -1) }}">
+                                    {% if a.get('teleop_balls') is not none %}
+                                        <span class="{{ 'text-success fw-bold' if a.teleop_balls >= 3 else 'text-danger' if a.teleop_balls <= 1 else '' }}">{{ a.teleop_balls }}</span>
+                                    {% else %}-{% endif %}
+                                </td>
+                                <td data-value="{{ a.get('teleop_defense', -1) }}">
+                                    {% if a.get('teleop_defense') is not none %}
+                                        <span class="{{ 'text-success fw-bold' if a.teleop_defense >= 2 else '' }}">{{ a.teleop_defense }}</span>
+                                    {% else %}-{% endif %}
+                                </td>
+                                <td data-value="{{ a.get('teleop_climb', -1) }}">
+                                    {% if a.get('teleop_climb') is not none %}
+                                        <span class="{{ 'text-success fw-bold' if a.teleop_climb >= 2 else 'text-danger' if a.teleop_climb == 0 else '' }}">{{ a.teleop_climb }}</span>
+                                    {% else %}-{% endif %}
+                                </td>
+                                <td>{{ row.match_count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Client-side table sorting
+document.querySelectorAll('.sortable').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+        const table = th.closest('table');
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        const col = parseInt(th.dataset.col);
+        const asc = th.dataset.sort !== 'asc';
+        th.dataset.sort = asc ? 'asc' : 'desc';
+
+        // Reset other headers
+        table.querySelectorAll('.sortable').forEach(h => {
+            if (h !== th) h.dataset.sort = '';
+        });
+
+        rows.sort((a, b) => {
+            const cellA = a.cells[col];
+            const cellB = b.cells[col];
+            let valA = cellA.dataset.value !== undefined ? parseFloat(cellA.dataset.value) : parseFloat(cellA.textContent);
+            let valB = cellB.dataset.value !== undefined ? parseFloat(cellB.dataset.value) : parseFloat(cellB.textContent);
+            if (isNaN(valA)) valA = -999;
+            if (isNaN(valB)) valB = -999;
+            return asc ? valA - valB : valB - valA;
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    });
+});
+</script>
+{% endblock %}
