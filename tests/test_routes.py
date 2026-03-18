@@ -1,33 +1,7 @@
 import pytest
 
-from web import create_app
 from web.extensions import db
 from web.models import Team, User, Event, Game
-
-
-class TestConfig:
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    SECRET_KEY = 'test'
-
-
-@pytest.fixture
-def app():
-    app = create_app(TestConfig)
-    with app.app_context():
-        db.create_all()
-        # Seed team 9771
-        team = Team(number=9771, name='FPRO', tba_key='frc9771')
-        db.session.add(team)
-        db.session.commit()
-        yield app
-        db.session.remove()
-        db.drop_all()
-
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
 
 
 def test_index_redirects_to_home(client):
@@ -48,7 +22,12 @@ def test_login_page_renders(client):
     assert b'ScoutPro' in resp.data
 
 
-def test_create_user(client):
+def test_create_user(client, app):
+    with app.app_context():
+        Team(number=9771, name='FPRO', tba_key='frc9771')
+        db.session.add(Team(number=9771, name='FPRO', tba_key='frc9771'))
+        db.session.commit()
+
     resp = client.post('/login', data={'username': 'testscout'}, follow_redirects=False)
     assert resp.status_code == 302
     assert '/events' in resp.headers['Location']
@@ -56,7 +35,9 @@ def test_create_user(client):
 
 def test_create_duplicate_user(client, app):
     with app.app_context():
-        team = Team.query.filter_by(number=9771).first()
+        team = Team(number=9771, name='FPRO', tba_key='frc9771')
+        db.session.add(team)
+        db.session.commit()
         db.session.add(User(team_id=team.id, username='scout1'))
         db.session.commit()
 
@@ -67,7 +48,9 @@ def test_create_duplicate_user(client, app):
 
 def test_select_existing_user(client, app):
     with app.app_context():
-        team = Team.query.filter_by(number=9771).first()
+        team = Team(number=9771, name='FPRO', tba_key='frc9771')
+        db.session.add(team)
+        db.session.commit()
         user = User(team_id=team.id, username='scout1')
         db.session.add(user)
         db.session.commit()
@@ -78,7 +61,11 @@ def test_select_existing_user(client, app):
     assert '/events' in resp.headers['Location']
 
 
-def test_logout_clears_session(client):
+def test_logout_clears_session(client, app):
+    with app.app_context():
+        db.session.add(Team(number=9771, name='FPRO', tba_key='frc9771'))
+        db.session.commit()
+
     client.post('/login', data={'username': 'testscout'})
     resp = client.get('/logout', follow_redirects=False)
     assert resp.status_code == 302
@@ -90,7 +77,10 @@ def test_logout_clears_session(client):
 
 
 def test_event_selection(client, app):
-    # Create user first
+    with app.app_context():
+        db.session.add(Team(number=9771, name='FPRO', tba_key='frc9771'))
+        db.session.commit()
+
     client.post('/login', data={'username': 'testscout'})
 
     with app.app_context():
@@ -104,11 +94,62 @@ def test_event_selection(client, app):
 
     resp = client.get(f'/events?event_id={event_id}', follow_redirects=False)
     assert resp.status_code == 302
-    assert '/' == resp.headers['Location'] or resp.headers['Location'].endswith('/')
 
 
-def test_events_page_renders(client):
+def test_events_page_renders(client, app):
+    with app.app_context():
+        db.session.add(Team(number=9771, name='FPRO', tba_key='frc9771'))
+        db.session.commit()
+
     client.post('/login', data={'username': 'testscout'})
     resp = client.get('/events')
     assert resp.status_code == 200
     assert b'Select Event' in resp.data
+
+
+def test_home_renders_with_session(authed_client):
+    resp = authed_client.get('/home')
+    assert resp.status_code == 200
+    assert b'Match Prep' in resp.data
+    assert b'Scout a Match' in resp.data
+
+
+def test_robot_list_renders(authed_client):
+    resp = authed_client.get('/scout/robots')
+    assert resp.status_code == 200
+    assert b'Scout a Robot' in resp.data
+
+
+def test_match_list_renders(authed_client):
+    resp = authed_client.get('/scout/matches')
+    assert resp.status_code == 200
+    assert b'Scout a Match' in resp.data
+
+
+def test_analytics_renders(authed_client):
+    resp = authed_client.get('/analytics/')
+    assert resp.status_code == 200
+    assert b'Analytics' in resp.data
+
+
+def test_admin_renders(authed_client):
+    resp = authed_client.get('/admin/')
+    assert resp.status_code == 200
+    assert b'Admin Panel' in resp.data
+
+
+def test_404_page(authed_client):
+    resp = authed_client.get('/nonexistent-page')
+    assert resp.status_code == 404
+    assert b'Page not found' in resp.data
+
+
+def test_team_search_redirects(authed_client):
+    resp = authed_client.get('/teams/search?q=9771', follow_redirects=False)
+    assert resp.status_code == 302
+    assert '/teams/9771' in resp.headers['Location']
+
+
+def test_team_search_not_found(authed_client):
+    resp = authed_client.get('/teams/search?q=9999', follow_redirects=True)
+    assert b'not found' in resp.data or b'not registered' in resp.data

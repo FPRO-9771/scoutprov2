@@ -1,28 +1,10 @@
 import pytest
 from unittest.mock import patch, MagicMock
 
-from web import create_app
 from web.extensions import db
 from web.models import Game, Team, Event
 from web.services.tba_service import TBAService
 from web.services.import_service import ImportService
-
-
-class TestConfig:
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    SECRET_KEY = 'test'
-    TBA_API_KEY = 'test-key'
-
-
-@pytest.fixture
-def app():
-    app = create_app(TestConfig)
-    with app.app_context():
-        db.create_all()
-        yield app
-        db.session.remove()
-        db.drop_all()
 
 
 def test_parse_match():
@@ -96,7 +78,7 @@ def test_import_event_teams(mock_get, app):
         db.session.commit()
 
         count = ImportService.import_event_teams(event.id)
-        assert count == 2  # 9771 already exists but gets linked, 1234 is new
+        assert count == 2
         assert len(event.teams) == 2
         assert Team.query.filter_by(number=1234).first() is not None
 

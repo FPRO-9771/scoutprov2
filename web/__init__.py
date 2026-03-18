@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 
 from config import Config
 from web.extensions import db, migrate
@@ -34,8 +34,18 @@ def create_app(config_class=Config):
     app.register_blueprint(analytics_bp)
 
     # CLI commands
-    from web.commands import seed_command, import_matches_command
+    from web.commands import seed_command, import_matches_command, seed_demo_command
     app.cli.add_command(seed_command)
     app.cli.add_command(import_matches_command)
+    app.cli.add_command(seed_demo_command)
+
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(e):
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return render_template('errors/500.html'), 500
 
     return app
