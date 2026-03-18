@@ -28,24 +28,28 @@ You should see output like:
 ```
 Created team 9771 FPRO
 Created game: Reefscape
-Imported event Traverse City District with XX teams
+Imported event ... with XX teams
 Imported event ... with XX teams
 ```
 
-### 3. Import match schedules
+### 3. Import match schedules (if available)
 
 ```bash
-flask import-matches 2025mitraverse
-flask import-matches 2025mibig
+flask import-matches 2026mitvc
+flask import-matches 2026mibig
 ```
+
+**Note:** If match schedules haven't been published on TBA yet, this will import 0 matches. That's OK — you can create matches manually via the admin panel (see below).
 
 ### 4. Start the server
 
 ```bash
-flask run --debug
+flask run --debug --port 5001
 ```
 
-Open http://localhost:5000 in your browser (use phone-sized viewport in dev tools for mobile testing).
+Open http://localhost:5001 in your browser (use phone-sized viewport in dev tools for mobile testing).
+
+> **macOS note:** Port 5000 is often taken by AirPlay Receiver, so we use 5001.
 
 ---
 
@@ -54,7 +58,7 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 1. You should be redirected to the **login page**
 2. Type a name (e.g., "Brian") and tap **Join**
 3. You should land on the **event selection** page
-4. Select "Traverse City District" (or whichever event loaded)
+4. Select an event (e.g., the Traverse City or Ferris State event)
 5. You should land on the **home screen** with 4 action buttons
 
 **Verify:**
@@ -66,7 +70,7 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 
 1. Tap the logout button (box-arrow icon in navbar)
 2. You should land back on the login page
-3. Close the browser tab, reopen http://localhost:5000
+3. Close the browser tab, reopen http://localhost:5001
 4. You should be auto-logged-in via cookie and redirected to event selection
 
 ## Test: Team Search
@@ -75,6 +79,45 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 2. You should land on the **Team 9771** detail page
 3. Go back, search for a team number that doesn't exist (e.g., `9999`)
 4. You should see a flash error: "Team 9999 not found"
+
+---
+
+## Test: Admin Panel
+
+**Important:** You must be logged in and have an event selected before accessing the admin panel. Complete the Login Flow above first.
+
+1. Navigate to http://localhost:5001/admin/
+2. You should see 5 sections: Games, Events, Teams, Matches, TBA Sync
+
+**Games:**
+3. Tap Games — you should see "Reefscape"
+4. Edit the name, save — verify it updates
+5. Create a new game — verify it appears
+
+**Events:**
+6. Tap Events — you should see your imported events
+7. Create a new event manually
+8. Edit an existing event
+
+**Teams:**
+9. Tap Teams — shows teams at the current event
+10. Add a new team (e.g., 9999 "TestBot")
+11. Verify it appears in the list
+12. Remove it with the X button
+
+**Matches (create manually if TBA hasn't published them):**
+13. Tap Matches — shows all matches for the current event
+14. Create a new match: enter a match number (e.g., `1`) + 3 red team numbers + 3 blue team numbers
+    - Use real team numbers from the event (check the Teams page for numbers)
+    - Include `9771` in one alliance so it shows up in Match Prep
+15. Verify the match appears in the list
+16. Create a few more matches to have data to test with
+17. Edit an existing match (tap pencil icon, change a team number, save)
+
+**TBA Sync:**
+18. Tap TBA Sync
+19. Tap "Sync Event Teams" — should show success flash with count
+20. Tap "Sync Matches" — should show success flash with count (0 if TBA hasn't published schedules yet)
 
 ---
 
@@ -102,6 +145,8 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 ---
 
 ## Test: Scout a Match
+
+**Prerequisite:** You need at least one match. If TBA matches aren't available, create one via Admin > Matches first.
 
 1. From home, tap **Scout a Match**
 2. You should see a grid of match numbers (5 per row)
@@ -139,6 +184,8 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 
 ## Test: Match Prep
 
+**Prerequisite:** You need matches that include team 9771. Create one via Admin > Matches if needed (put 9771 in one of the alliances).
+
 1. From home, tap **Match Prep**
 2. You should see only matches where team 9771 is playing
 3. Each match shows a red or blue badge (which alliance 9771 is on)
@@ -154,8 +201,8 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 6. Team 9771's card should have a yellow border and "Us" badge
 
 **Verify TBA data:**
-- If your API key is valid, you should see ranking data
-- If TBA has no data yet (pre-season), cards will show "No data available yet"
+- If your API key is valid and the season is active, you should see ranking data
+- If TBA has no ranking data yet (pre-season), cards will show "No data available yet"
 
 ---
 
@@ -187,44 +234,11 @@ Open http://localhost:5000 in your browser (use phone-sized viewport in dev tool
 
 ---
 
-## Test: Admin Panel
-
-1. Navigate to http://localhost:5000/admin/
-
-**Games:**
-2. Tap Games — you should see "Reefscape"
-3. Edit the name, save — verify it updates
-4. Create a new game — verify it appears
-
-**Events:**
-5. Tap Events — you should see your imported events
-6. Create a new event manually
-7. Edit an existing event
-
-**Teams:**
-8. Tap Teams — shows teams at the current event
-9. Add a new team (e.g., 9999 "TestBot")
-10. Verify it appears in the list
-11. Remove it with the X button
-
-**Matches:**
-12. Tap Matches — shows all matches
-13. Create a new match: enter a number + 3 red + 3 blue team numbers
-14. Verify it appears
-15. Edit an existing match (tap pencil icon, change a team number, save)
-
-**TBA Sync:**
-16. Tap TBA Sync
-17. Tap "Sync Event Teams" — should show success flash with count
-18. Tap "Sync Matches" — should show success flash with count
-
----
-
 ## Test: Error Handling
 
-1. Visit http://localhost:5000/this-does-not-exist
+1. Visit http://localhost:5001/this-does-not-exist
 2. You should see the 404 page with "Page not found" and a home link
-3. Visit http://localhost:5000/teams/99999
+3. Visit http://localhost:5001/teams/99999
 4. You should also see a 404
 
 ---

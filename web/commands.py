@@ -17,8 +17,8 @@ from web.services.import_service import ImportService
 
 # Two target events for v1
 TARGET_EVENTS = [
-    '2025mitraverse',  # Traverse City, MI
-    '2025mibig',       # Ferris State (Big Rapids), MI
+    '2026mitvc',   # Traverse City, MI
+    '2026mibig',   # Ferris State (Big Rapids), MI
 ]
 
 
