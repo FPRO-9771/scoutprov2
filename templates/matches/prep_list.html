@@ -2,22 +2,21 @@
 {% block title %}Match Prep — ScoutPro{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('main.home') }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="fw-bold text-primary mb-0">Match Prep</h2>
+    <div>
+        <h2>Match Prep</h2>
+        <small class="text-muted">{{ matches|length }} matches for Team 9771</small>
+    </div>
 </div>
-
-<p class="text-muted mb-3">{{ matches|length }} matches for Team 9771</p>
 
 <div class="list-group">
     {% for match, alliance in matches %}
     <a href="{{ url_for('matches.prep_detail', match_id=match.id) }}"
        class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-        <div>
-            <span class="fw-bold">Match {{ match.number }}</span>
-        </div>
+        <span class="fw-bold">Match {{ match.number }}</span>
         <span class="badge {{ 'bg-danger' if alliance == 'red' else 'bg-primary' }}">
             {{ alliance|upper }}
         </span>
@@ -26,7 +25,8 @@
 </div>
 
 {% if not matches %}
-<div class="text-center text-muted py-5">
+<div class="empty-state">
+    <i class="bi bi-clipboard-x d-block"></i>
     <p>No matches found for Team 9771 at this event.</p>
 </div>
 {% endif %}

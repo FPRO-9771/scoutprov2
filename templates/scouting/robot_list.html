@@ -2,14 +2,15 @@
 {% block title %}Scout a Robot — ScoutPro{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('main.home') }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="fw-bold text-primary mb-0">Scout a Robot</h2>
+    <div>
+        <h2>Scout a Robot</h2>
+        <small class="text-muted">{{ teams|length }} teams at {{ session.get('event_name') }}</small>
+    </div>
 </div>
-
-<p class="text-muted mb-3">{{ teams|length }} teams at {{ session.get('event_name') }}</p>
 
 <div class="list-group">
     {% for team in teams %}
@@ -20,18 +21,18 @@
             <span class="text-muted ms-2">{{ team.name or '' }}</span>
         </div>
         {% if scouted.get(team.id) %}
-            <span class="badge bg-success"><i class="bi bi-check-lg"></i></span>
+            <span class="scout-status scout-status-done"></span>
         {% else %}
-            <span class="badge bg-secondary"><i class="bi bi-dash"></i></span>
+            <span class="scout-status scout-status-none"></span>
         {% endif %}
     </a>
     {% endfor %}
 </div>
 
 {% if not teams %}
-<div class="text-center text-muted py-5">
+<div class="empty-state">
+    <i class="bi bi-robot d-block"></i>
     <p>No teams found at this event.</p>
-    <p>Import teams using <code>flask seed</code> or the admin panel.</p>
 </div>
 {% endif %}
 {% endblock %}

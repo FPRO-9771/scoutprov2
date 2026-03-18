@@ -2,12 +2,12 @@
 {% block title %}Team {{ team.number }} — ScoutPro{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('main.home') }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
     <div>
-        <h2 class="fw-bold text-primary mb-0">Team {{ team.number }}</h2>
+        <h2>Team {{ team.number }}</h2>
         <span class="text-muted">{{ team.name or '' }}</span>
     </div>
 </div>
@@ -50,11 +50,11 @@
                 <thead>
                     <tr>
                         <th>Match</th>
-                        <th>A-Balls</th>
-                        <th>A-Climb</th>
-                        <th>T-Balls</th>
+                        <th>A-Ball</th>
+                        <th>A-Clmb</th>
+                        <th>T-Ball</th>
                         <th>T-Def</th>
-                        <th>T-Climb</th>
+                        <th>T-Clmb</th>
                         <th>By</th>
                     </tr>
                 </thead>

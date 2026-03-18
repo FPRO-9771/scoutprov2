@@ -2,19 +2,19 @@
 {% block title %}Match {{ match.number }} — ScoutPro{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('scouting.match_list') }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('scouting.match_list') }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="fw-bold text-primary mb-0">Match {{ match.number }}</h2>
+    <h2>Match {{ match.number }}</h2>
 </div>
 
 <!-- Red Alliance -->
-<div class="card mb-3 border-danger">
-    <div class="card-header bg-danger text-white fw-bold">
-        <i class="bi bi-circle-fill"></i> Red Alliance
+<div class="card alliance-card alliance-red mb-3">
+    <div class="card-header">
+        <i class="bi bi-circle-fill me-1"></i> Red Alliance
     </div>
-    <div class="list-group list-group-flush">
+    <div class="list-group list-group-flush" style="box-shadow: none;">
         {% for team in red_teams %}
         <a href="{{ url_for('scouting.match_input', match_id=match.id, team_number=team.number) }}"
            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
@@ -23,7 +23,7 @@
                 <span class="text-muted ms-2">{{ team.name or '' }}</span>
             </div>
             {% if scout_counts.get(team.id, 0) > 0 %}
-                <span class="badge bg-success">{{ scout_counts[team.id] }}x scouted</span>
+                <span class="badge bg-success">{{ scout_counts[team.id] }}x</span>
             {% endif %}
         </a>
         {% endfor %}
@@ -31,11 +31,11 @@
 </div>
 
 <!-- Blue Alliance -->
-<div class="card mb-3 border-primary">
-    <div class="card-header bg-primary text-white fw-bold">
-        <i class="bi bi-circle-fill"></i> Blue Alliance
+<div class="card alliance-card alliance-blue mb-3">
+    <div class="card-header">
+        <i class="bi bi-circle-fill me-1"></i> Blue Alliance
     </div>
-    <div class="list-group list-group-flush">
+    <div class="list-group list-group-flush" style="box-shadow: none;">
         {% for team in blue_teams %}
         <a href="{{ url_for('scouting.match_input', match_id=match.id, team_number=team.number) }}"
            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
@@ -44,7 +44,7 @@
                 <span class="text-muted ms-2">{{ team.name or '' }}</span>
             </div>
             {% if scout_counts.get(team.id, 0) > 0 %}
-                <span class="badge bg-success">{{ scout_counts[team.id] }}x scouted</span>
+                <span class="badge bg-success">{{ scout_counts[team.id] }}x</span>
             {% endif %}
         </a>
         {% endfor %}

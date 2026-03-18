@@ -2,14 +2,15 @@
 {% block title %}Scout a Match — ScoutPro{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('main.home') }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="fw-bold text-primary mb-0">Scout a Match</h2>
+    <div>
+        <h2>Scout a Match</h2>
+        <small class="text-muted">{{ matches|length }} matches at {{ session.get('event_name') }}</small>
+    </div>
 </div>
-
-<p class="text-muted mb-3">{{ matches|length }} matches at {{ session.get('event_name') }}</p>
 
 <div class="row g-2">
     {% for match in matches %}
@@ -27,15 +28,15 @@
 </div>
 
 {% if not matches %}
-<div class="text-center text-muted py-5">
+<div class="empty-state">
+    <i class="bi bi-grid-3x3 d-block"></i>
     <p>No matches found at this event.</p>
-    <p>Import matches using <code>flask import-matches &lt;event_key&gt;</code></p>
 </div>
 {% endif %}
 
-<div class="mt-4 d-flex gap-3 justify-content-center text-muted small">
-    <span><span class="badge bg-success">&nbsp;</span> All scouted</span>
-    <span><span class="badge bg-warning">&nbsp;</span> Partial</span>
-    <span><span class="badge bg-secondary">&nbsp;</span> None</span>
+<div class="mt-4 d-flex gap-3 justify-content-center small">
+    <span><span class="scout-status scout-status-done"></span> All scouted</span>
+    <span><span class="scout-status" style="background: var(--bs-warning);"></span> Partial</span>
+    <span><span class="scout-status scout-status-none"></span> None</span>
 </div>
 {% endblock %}

@@ -2,11 +2,11 @@
 {% block title %}Analytics — ScoutPro{% endblock %}
 
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('main.home') }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('main.home') }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
-    <h2 class="fw-bold text-primary mb-0">Analytics</h2>
+    <h2>Analytics</h2>
 </div>
 
 <!-- Tabs -->
@@ -23,23 +23,22 @@
     <!-- Scouting Gaps -->
     <div class="tab-pane fade show active" id="gaps" role="tabpanel">
 
-        <!-- Unscouted Robots -->
         <div class="card mb-3">
             <div class="card-header fw-bold d-flex justify-content-between align-items-center">
                 <span>Unscouted Robots</span>
-                <span class="badge bg-primary">{{ total_teams - unscouted_robots|length }} / {{ total_teams }} scouted</span>
+                <span class="badge bg-primary">{{ total_teams - unscouted_robots|length }} / {{ total_teams }}</span>
             </div>
             <div class="card-body">
                 {% if unscouted_robots %}
-                <div class="list-group list-group-flush">
+                <div class="list-group list-group-flush" style="box-shadow: none;">
                     {% for team in unscouted_robots %}
-                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0 border-0">
                         <div>
                             <span class="fw-bold">{{ team.number }}</span>
                             <span class="text-muted ms-2">{{ team.name or '' }}</span>
                         </div>
                         <a href="{{ url_for('scouting.robot_input', team_number=team.number) }}" class="btn btn-sm btn-outline-warning">
-                            Scout Now
+                            Scout
                         </a>
                     </div>
                     {% endfor %}
@@ -50,14 +49,13 @@
             </div>
         </div>
 
-        <!-- Unscouted Matches -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Unscouted Match Outcomes</div>
             <div class="card-body">
                 {% if unscouted_matches %}
                 {% for item in unscouted_matches %}
                 <div class="mb-3 pb-3 {{ '' if loop.last else 'border-bottom' }}">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <span class="fw-bold">Match {{ item.match.number }}</span>
                         <span class="badge bg-warning text-dark">{{ item.scouted }} / {{ item.total }}</span>
                     </div>
@@ -86,13 +84,13 @@
                     <table class="table table-sm table-hover mb-0 sortable-table">
                         <thead class="table-light">
                             <tr>
-                                <th class="sortable" data-col="0">Team # <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="0">Team <i class="bi bi-arrow-down-up"></i></th>
                                 <th>Name</th>
-                                <th class="sortable" data-col="2">A-Balls <i class="bi bi-arrow-down-up"></i></th>
-                                <th class="sortable" data-col="3">A-Climb <i class="bi bi-arrow-down-up"></i></th>
-                                <th class="sortable" data-col="4">T-Balls <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="2">A-Ball <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="3">A-Clmb <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="4">T-Ball <i class="bi bi-arrow-down-up"></i></th>
                                 <th class="sortable" data-col="5">T-Def <i class="bi bi-arrow-down-up"></i></th>
-                                <th class="sortable" data-col="6">T-Climb <i class="bi bi-arrow-down-up"></i></th>
+                                <th class="sortable" data-col="6">T-Clmb <i class="bi bi-arrow-down-up"></i></th>
                                 <th class="sortable" data-col="7"># <i class="bi bi-arrow-down-up"></i></th>
                             </tr>
                         </thead>
@@ -147,7 +145,6 @@
 <script>
 // Client-side table sorting
 document.querySelectorAll('.sortable').forEach(th => {
-    th.style.cursor = 'pointer';
     th.addEventListener('click', () => {
         const table = th.closest('table');
         const tbody = table.querySelector('tbody');

@@ -13,17 +13,17 @@
         <div class="container">
             <a class="brand-logo" href="{{ url_for('main.index') }}">ScoutPro</a>
 
-            <div class="d-flex align-items-center ms-auto">
+            <div class="d-flex align-items-center ms-auto gap-2">
                 {% if session.get('user_id') %}
-                    <span class="navbar-text me-2">
+                    <span class="navbar-text">
                         <i class="bi bi-person-fill"></i> {{ session.get('username', '') }}
                     </span>
                     {% if session.get('event_name') %}
-                        <span class="navbar-text me-3">
+                        <span class="navbar-text d-none d-sm-inline">
                             <i class="bi bi-geo-alt-fill"></i> {{ session.get('event_name', '') }}
                         </span>
                     {% endif %}
-                    <a href="{{ url_for('main.select_event') }}" class="btn btn-sm btn-outline-light me-2">
+                    <a href="{{ url_for('main.select_event') }}" class="btn btn-sm btn-outline-light">
                         <i class="bi bi-calendar-event"></i>
                     </a>
                     <a href="{{ url_for('main.logout') }}" class="btn btn-sm btn-outline-light">
@@ -53,8 +53,8 @@
 
     <footer class="footer">
         <div class="container">
-            <span class="brand-logo" style="font-size: 1rem; color: #6c757d !important;">FPRO</span>
-            Production &middot; Team 9771
+            <span class="brand-logo" style="font-size: 0.9rem; color: #bbb !important;">FPRO</span>
+            <span style="color: #ccc;">&middot;</span> Team 9771
         </div>
     </footer>
 

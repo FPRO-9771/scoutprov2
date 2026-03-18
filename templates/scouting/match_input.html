@@ -1,13 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Scout Match {{ match.number }} — Team {{ team.number }} — ScoutPro{% endblock %}
 
+{% macro ball_buttons(name, data_key, max_val) %}
+<div class="btn-group-toggle d-flex gap-1">
+    <input type="hidden" name="{{ name }}" value="{{ data.get(data_key, '') }}">
+    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get(data_key)|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
+    {% for n in range(1, max_val + 1) %}
+    <button type="button" class="btn flex-fill {{ 'btn-warning' if data.get(data_key)|string == n|string else 'btn-outline-warning' }}" data-value="{{ n }}" data-color="warning">
+        <span class="ball-dots {{ 'dots-' ~ n if n >= 4 }}">
+            {% for i in range(n) %}<span class="ball-dot"></span>{% endfor %}
+        </span>
+    </button>
+    {% endfor %}
+</div>
+{% endmacro %}
+
+{% macro climb_buttons(name, data_key, max_level) %}
+<div class="btn-group-toggle d-flex gap-1">
+    <input type="hidden" name="{{ name }}" value="{{ data.get(data_key, '') }}">
+    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get(data_key)|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
+    {% for n in range(1, max_level + 1) %}
+    <button type="button" class="btn flex-fill {{ 'btn-info' if data.get(data_key)|string == n|string else 'btn-outline-info' }}" data-value="{{ n }}" data-color="info">L{{ n }}</button>
+    {% endfor %}
+</div>
+{% endmacro %}
+
 {% block content %}
-<div class="d-flex align-items-center mb-3">
-    <a href="{{ url_for('scouting.match_teams', match_id=match.id) }}" class="btn btn-sm btn-outline-primary me-2">
+<div class="page-header">
+    <a href="{{ url_for('scouting.match_teams', match_id=match.id) }}" class="back-btn btn">
         <i class="bi bi-arrow-left"></i>
     </a>
     <div>
-        <h2 class="fw-bold text-primary mb-0">Team {{ team.number }}</h2>
+        <h2>Team {{ team.number }}</h2>
         <small class="text-muted">Match {{ match.number }} — {{ team.name or '' }}</small>
     </div>
 </div>
@@ -27,83 +51,55 @@
 <div class="tab-content">
     <!-- Auton Tab -->
     <div class="tab-pane fade show active" id="auton" role="tabpanel">
-        <!-- Auton Balls -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Balls Scored</div>
             <div class="card-body">
-                <div class="btn-group-toggle d-flex gap-1">
-                    <input type="hidden" name="auton_balls" value="{{ data.get('auton_balls', '') }}">
-                    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('auton_balls')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-                    {% for n in range(1, 6) %}
-                    <button type="button" class="btn flex-fill {{ 'btn-warning' if data.get('auton_balls')|string == n|string else 'btn-outline-warning' }}" data-value="{{ n }}" data-color="warning">{{ n }}</button>
-                    {% endfor %}
-                </div>
+                {{ ball_buttons('auton_balls', 'auton_balls', 5) }}
             </div>
         </div>
 
-        <!-- Auton Climb -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Climb</div>
             <div class="card-body">
-                <div class="btn-group-toggle d-flex gap-1">
-                    <input type="hidden" name="auton_climb" value="{{ data.get('auton_climb', '') }}">
-                    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('auton_climb')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-                    {% for n in range(1, 4) %}
-                    <button type="button" class="btn flex-fill {{ 'btn-info' if data.get('auton_climb')|string == n|string else 'btn-outline-info' }}" data-value="{{ n }}" data-color="info">{{ n }}</button>
-                    {% endfor %}
-                </div>
+                {{ climb_buttons('auton_climb', 'auton_climb', 3) }}
             </div>
         </div>
     </div>
 
     <!-- Teleop Tab -->
     <div class="tab-pane fade" id="teleop" role="tabpanel">
-        <!-- Teleop Balls -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Balls Scored</div>
             <div class="card-body">
-                <div class="btn-group-toggle d-flex gap-1">
-                    <input type="hidden" name="teleop_balls" value="{{ data.get('teleop_balls', '') }}">
-                    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('teleop_balls')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-                    {% for n in range(1, 6) %}
-                    <button type="button" class="btn flex-fill {{ 'btn-warning' if data.get('teleop_balls')|string == n|string else 'btn-outline-warning' }}" data-value="{{ n }}" data-color="warning">{{ n }}</button>
-                    {% endfor %}
-                </div>
+                {{ ball_buttons('teleop_balls', 'teleop_balls', 5) }}
             </div>
         </div>
 
-        <!-- Teleop Defense -->
+        <!-- Defense -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Defense</div>
             <div class="card-body">
                 <div class="btn-group-toggle d-flex gap-1">
                     <input type="hidden" name="teleop_defense" value="{{ data.get('teleop_defense', '') }}">
                     <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('teleop_defense')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '1' else 'btn-outline-success' }}" data-value="1" data-color="success">&#x1F4AA;</button>
-                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '2' else 'btn-outline-success' }}" data-value="2" data-color="success">&#x1F4AA;&#x1F4AA;</button>
-                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '3' else 'btn-outline-success' }}" data-value="3" data-color="success">&#x1F4AA;&#x1F4AA;&#x1F4AA;</button>
+                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '1' else 'btn-outline-success' }}" data-value="1" data-color="success">&#x1F6E1;&#xFE0F;</button>
+                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '2' else 'btn-outline-success' }}" data-value="2" data-color="success">&#x1F6E1;&#xFE0F;&#x1F6E1;&#xFE0F;</button>
+                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '3' else 'btn-outline-success' }}" data-value="3" data-color="success">&#x1F6E1;&#xFE0F;&#x1F6E1;&#xFE0F;&#x1F6E1;&#xFE0F;</button>
                 </div>
             </div>
         </div>
 
-        <!-- Teleop Climb -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Climb</div>
             <div class="card-body">
-                <div class="btn-group-toggle d-flex gap-1">
-                    <input type="hidden" name="teleop_climb" value="{{ data.get('teleop_climb', '') }}">
-                    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('teleop_climb')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-                    {% for n in range(1, 4) %}
-                    <button type="button" class="btn flex-fill {{ 'btn-info' if data.get('teleop_climb')|string == n|string else 'btn-outline-info' }}" data-value="{{ n }}" data-color="info">{{ n }}</button>
-                    {% endfor %}
-                </div>
+                {{ climb_buttons('teleop_climb', 'teleop_climb', 3) }}
             </div>
         </div>
     </div>
 </div>
 
-<!-- Save Button (always visible) -->
-<button type="button" class="btn btn-success w-100 py-3 fw-bold mt-3"
+<!-- Save Button -->
+<button type="button" class="btn btn-success save-btn w-100 fw-bold mt-3"
         onclick="confirmMatchSave('{{ team.number }}', '{{ match.number }}')">
     <i class="bi bi-check-circle"></i> Save Match Scouting
 </button>
@@ -112,10 +108,12 @@
 
 <!-- Confirmation Modal -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
         <div class="modal-content">
             <div class="modal-body text-center py-4">
-                <h5>Save match scouting for Team <span id="confirmTeamNumber"></span> in Match <span id="confirmMatchNumber"></span>?</h5>
+                <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+                <h5 class="mt-3">Save scouting data?</h5>
+                <p class="text-muted mb-0">Team <span id="confirmTeamNumber" class="fw-bold"></span> &middot; Match <span id="confirmMatchNumber" class="fw-bold"></span></p>
                 <div class="mt-4 d-flex gap-2 justify-content-center">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-success" onclick="document.getElementById('matchForm').submit()">

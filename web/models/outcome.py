@@ -1,4 +1,4 @@
-from datetime import datetime, UTC
+from datetime import datetime, timezone
 
 from web.extensions import db
 
@@ -11,7 +11,7 @@ class Outcome(db.Model):
     team_id = db.Column(db.Integer, db.ForeignKey('teams.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     scouting_data = db.Column(db.JSON, nullable=False, default=dict)
-    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(UTC))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     __table_args__ = (
         db.UniqueConstraint('match_id', 'team_id', 'user_id', name='uq_outcome_match_team_user'),

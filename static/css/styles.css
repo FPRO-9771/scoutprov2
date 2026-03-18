@@ -18,11 +18,19 @@
     --bs-warning-rgb: 201, 168, 124;
     --bs-danger: #a85a6e;
     --bs-danger-rgb: 168, 90, 110;
+
+    --purple-glow: rgba(47, 5, 90, 0.15);
+    --purple-tint: rgba(47, 5, 90, 0.04);
+    --transition-smooth: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     font-family: 'Avenir', 'Nunito', sans-serif;
-    background-color: #f8f9fa;
+    background-color: #f4f0f8;
 }
 
 /* Brand logo */
@@ -31,15 +39,19 @@ body {
     font-size: 1.5rem;
     color: #fff !important;
     text-decoration: none;
+    letter-spacing: 0.5px;
 }
 
-/* Navbar */
+/* ─── Navbar ─── */
 .navbar {
-    background-color: var(--bs-primary) !important;
+    background: linear-gradient(135deg, #2F055A 0%, #4a1a7a 100%) !important;
+    box-shadow: 0 2px 12px rgba(47, 5, 90, 0.3);
+    padding: 0.6rem 0;
 }
 
 .navbar .nav-link {
     color: rgba(255, 255, 255, 0.85) !important;
+    transition: color var(--transition-smooth);
 }
 
 .navbar .nav-link:hover {
@@ -47,11 +59,21 @@ body {
 }
 
 .navbar .navbar-text {
-    color: rgba(255, 255, 255, 0.75) !important;
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-size: 0.8rem;
 }
 
-/* Bootstrap button overrides */
+.navbar .btn-outline-light {
+    border-color: rgba(255,255,255,0.3);
+    transition: all var(--transition-smooth);
+}
+
+.navbar .btn-outline-light:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.5);
+}
+
+/* ─── Bootstrap button overrides ─── */
 .btn-primary {
     background-color: var(--bs-primary);
     border-color: var(--bs-primary);
@@ -116,107 +138,201 @@ body {
     border-color: #944d5e;
 }
 
-/* Mobile-first: large touch targets */
+/* ─── Mobile-first: large touch targets ─── */
 .btn {
     min-height: 48px;
     padding: 0.625rem 1.25rem;
     font-size: 1rem;
+    border-radius: 0.6rem;
+    transition: all var(--transition-smooth);
 }
 
 .btn-sm {
     min-height: 36px;
     padding: 0.375rem 0.75rem;
     font-size: 0.875rem;
-}
-
-/* Form controls — larger on mobile */
-.form-control, .form-select {
-    min-height: 48px;
-    font-size: 1rem;
-}
-
-/* Cards */
-.card {
-    border: none;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     border-radius: 0.5rem;
 }
 
-.card-header {
-    background-color: rgba(47, 5, 90, 0.06);
-    border-bottom: 1px solid rgba(47, 5, 90, 0.1);
+/* ─── Form controls ─── */
+.form-control, .form-select {
+    min-height: 48px;
+    font-size: 1rem;
+    border-radius: 0.6rem;
+    border-color: #ddd;
+    transition: all var(--transition-smooth);
 }
 
-/* User/event selection cards */
+.form-control:focus, .form-select:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(47, 5, 90, 0.2);
+}
+
+.input-group .form-control {
+    border-radius: 0.6rem 0 0 0.6rem;
+}
+
+.input-group .btn {
+    border-radius: 0 0.6rem 0.6rem 0;
+}
+
+/* ─── Cards ─── */
+.card {
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    border-radius: 0.75rem;
+    transition: all var(--transition-smooth);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: var(--purple-tint);
+    border-bottom: 1px solid rgba(47, 5, 90, 0.08);
+    padding: 0.75rem 1rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* ─── Select cards (events, login) ─── */
 .select-card {
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: all var(--transition-smooth);
+    border: 2px solid transparent !important;
 }
 
 .select-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(47, 5, 90, 0.15);
+    box-shadow: 0 6px 20px var(--purple-glow);
+    border-color: rgba(47, 5, 90, 0.2) !important;
 }
 
 .select-card.active {
-    border: 2px solid var(--bs-primary);
+    border: 2px solid var(--bs-primary) !important;
+    box-shadow: 0 4px 16px var(--purple-glow);
 }
 
-/* List group items — bigger tap targets */
+/* ─── List groups ─── */
+.list-group {
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
 .list-group-item {
     padding: 0.875rem 1.25rem;
+    border-color: rgba(0, 0, 0, 0.06);
+    transition: all var(--transition-smooth);
 }
 
-/* Flash messages */
+.list-group-item-action:hover {
+    background-color: var(--purple-tint);
+    transform: translateX(2px);
+}
+
+/* ─── Flash messages ─── */
 .alert {
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-/* Footer */
+/* ─── Footer ─── */
 .footer {
-    color: #6c757d;
-    font-size: 0.85rem;
-    padding: 1rem 0;
+    color: #999;
+    font-size: 0.8rem;
+    padding: 1.5rem 0;
     text-align: center;
 }
 
-/* Login page centering */
+/* ─── Login page ─── */
 .login-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: linear-gradient(160deg, #f4f0f8 0%, #e8e0f0 100%);
 }
 
 .login-card {
-    max-width: 400px;
+    max-width: 420px;
     width: 100%;
 }
 
-/* Badge overrides */
+.login-card .card {
+    box-shadow: 0 8px 32px rgba(47, 5, 90, 0.12);
+}
+
+/* ─── Badge overrides ─── */
 .bg-primary {
     background-color: var(--bs-primary) !important;
 }
 
-/* Focus states */
-.form-control:focus, .form-select:focus {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.25rem rgba(47, 5, 90, 0.25);
+.badge {
+    border-radius: 0.5rem;
+    font-weight: 600;
+    padding: 0.35em 0.65em;
 }
 
-/* Home screen action cards */
+/* ─── Page headers ─── */
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.page-header h2 {
+    font-weight: 700;
+    color: var(--bs-primary);
+    margin: 0;
+    font-size: 1.4rem;
+}
+
+.back-btn {
+    width: 40px;
+    height: 40px;
+    min-height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--bs-primary);
+    border-color: rgba(47, 5, 90, 0.2);
+    background: white;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    flex-shrink: 0;
+}
+
+.back-btn:hover {
+    background-color: var(--bs-primary);
+    color: #fff;
+    border-color: var(--bs-primary);
+    box-shadow: 0 2px 8px var(--purple-glow);
+}
+
+/* ─── Home screen action cards ─── */
 .action-card {
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: all var(--transition-smooth);
     min-height: 140px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid transparent;
 }
 
 .action-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 16px rgba(47, 5, 90, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px var(--purple-glow);
+    border-color: rgba(47, 5, 90, 0.12);
+}
+
+.action-card:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--purple-glow);
 }
 
 .action-card-disabled {
@@ -226,7 +342,7 @@ body {
 
 .action-card-disabled:hover {
     transform: none;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .action-icon {
@@ -236,7 +352,261 @@ body {
 }
 
 .action-label {
-    font-weight: 600;
-    font-size: 1rem;
+    font-weight: 700;
+    font-size: 0.95rem;
     color: var(--bs-primary);
+    letter-spacing: 0.2px;
+}
+
+/* ─── Tabs (cleaner look) ─── */
+.nav-tabs {
+    border-bottom: 2px solid rgba(47, 5, 90, 0.1);
+    gap: 0.25rem;
+}
+
+.nav-tabs .nav-link {
+    border: none;
+    color: #888;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.6rem 0.6rem 0 0;
+    transition: all var(--transition-smooth);
+    min-height: auto;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--bs-primary);
+    background-color: var(--purple-tint);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--bs-primary);
+    background-color: #fff;
+    border-bottom: 3px solid var(--bs-primary);
+    margin-bottom: -2px;
+}
+
+/* ─── Scouting button groups ─── */
+.btn-group-toggle {
+    gap: 0.4rem !important;
+}
+
+.btn-group-toggle .btn {
+    border-radius: 0.6rem !important;
+    font-weight: 700;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ─── Ball indicator (yellow circles) ─── */
+.ball-dots {
+    display: flex;
+    gap: 3px;
+    align-items: center;
+    justify-content: center;
+}
+
+.ball-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #f5c542;
+    display: inline-block;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+}
+
+/* Outlined version for unselected state */
+.btn-outline-warning .ball-dot,
+.btn-outline-success .ball-dot {
+    background: #c9a87c;
+    opacity: 0.5;
+}
+
+.btn-warning .ball-dot,
+.btn-success .ball-dot {
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* Smaller dots when 4-5 to fit */
+.ball-dots.dots-4 .ball-dot,
+.ball-dots.dots-5 .ball-dot {
+    width: 10px;
+    height: 10px;
+}
+
+/* ─── Match grid buttons ─── */
+.match-btn {
+    min-height: 52px;
+    font-size: 1rem;
+    border-radius: 0.6rem;
+}
+
+/* ─── Alliance cards ─── */
+.alliance-card {
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.alliance-card .card-header {
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.3px;
+}
+
+.alliance-red {
+    border: 2px solid var(--bs-danger) !important;
+}
+
+.alliance-red .card-header {
+    background-color: var(--bs-danger);
+    color: #fff;
+}
+
+.alliance-blue {
+    border: 2px solid var(--bs-primary) !important;
+}
+
+.alliance-blue .card-header {
+    background-color: var(--bs-primary);
+    color: #fff;
+}
+
+/* ─── Modals ─── */
+.modal-content {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+/* ─── Tables ─── */
+.table {
+    font-size: 0.9rem;
+}
+
+.table thead th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #888;
+    font-weight: 700;
+    border-bottom: 2px solid rgba(47, 5, 90, 0.1);
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.sortable:hover {
+    color: var(--bs-primary);
+}
+
+/* ─── Empty states ─── */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: #999;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.4;
+}
+
+/* ─── Save button (scouting) ─── */
+.save-btn {
+    min-height: 56px;
+    font-size: 1.1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(90, 138, 110, 0.3);
+}
+
+.save-btn:hover {
+    box-shadow: 0 6px 20px rgba(90, 138, 110, 0.4);
+    transform: translateY(-1px);
+}
+
+.save-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(90, 138, 110, 0.3);
+}
+
+/* ─── Admin panel ─── */
+.admin-item {
+    padding: 1rem 1.25rem;
+}
+
+.admin-item i {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.6rem;
+    font-size: 1.2rem;
+}
+
+.admin-icon-primary { background: rgba(47, 5, 90, 0.08); color: var(--bs-primary); }
+.admin-icon-info { background: rgba(90, 122, 138, 0.1); color: var(--bs-info); }
+.admin-icon-success { background: rgba(90, 138, 110, 0.1); color: var(--bs-success); }
+.admin-icon-warning { background: rgba(201, 168, 124, 0.1); color: var(--bs-warning); }
+.admin-icon-danger { background: rgba(168, 90, 110, 0.1); color: var(--bs-danger); }
+
+/* ─── Stat badge (for averages/prep) ─── */
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: rgba(47, 5, 90, 0.06);
+    color: #444;
+}
+
+.stat-pill .ball-dot {
+    width: 8px;
+    height: 8px;
+}
+
+/* ─── Subtle scroll indicator ─── */
+.table-responsive {
+    border-radius: 0.5rem;
+}
+
+/* ─── Progress indicator for scouting ─── */
+.scout-status {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.scout-status-done { background: var(--bs-success); }
+.scout-status-none { background: #ddd; }
+
+/* ─── Smooth page fade ─── */
+main {
+    animation: fadeUp 0.25s ease-out;
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

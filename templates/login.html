@@ -10,22 +10,22 @@
                 <p class="text-muted mb-4">FRC Team 9771 Scouting</p>
 
                 {% if users %}
-                    <h5 class="mb-3">Select Your Name</h5>
+                    <h6 class="text-muted text-uppercase fw-bold mb-3" style="letter-spacing: 0.5px; font-size: 0.75rem;">Select Your Name</h6>
                     <div class="list-group mb-4">
                         {% for user in users %}
                             <a href="{{ url_for('main.login', select_user=user.id) }}"
                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                                 <span><i class="bi bi-person"></i> {{ user.username }}</span>
-                                <i class="bi bi-arrow-right"></i>
+                                <i class="bi bi-chevron-right text-muted"></i>
                             </a>
                         {% endfor %}
                     </div>
                 {% endif %}
 
-                <hr>
-                <h5 class="mb-3">New Scout</h5>
+                <hr class="my-4">
+                <h6 class="text-muted text-uppercase fw-bold mb-3" style="letter-spacing: 0.5px; font-size: 0.75rem;">New Scout</h6>
                 <form method="POST" action="{{ url_for('main.login') }}">
-                    <div class="input-group mb-3">
+                    <div class="input-group">
                         <input type="text" name="username" class="form-control" placeholder="Enter your name"
                                required maxlength="80" autocomplete="off">
                         <button type="submit" class="btn btn-primary">
