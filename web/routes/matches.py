@@ -1,6 +1,7 @@
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
-from flask import Blueprint, render_template, session
+from flask import Blueprint, abort, current_app, jsonify, render_template, session
 
 from web.auth import login_required
 from web.extensions import db
@@ -37,7 +38,6 @@ def prep_list():
 def prep_detail(match_id):
     match = db.session.get(Match, match_id)
     if not match:
-        from flask import abort
         abort(404)
 
     event = db.session.get(Event, match.event_id)
@@ -45,13 +45,48 @@ def prep_detail(match_id):
     blue_teams = _resolve_teams(match.blue_teams or [])
 
     summaries = {
-        team.id: TeamSummaryService.build(team, event)
+        team.id: TeamSummaryService.build_local(team, event)
         for team in red_teams + blue_teams
     }
 
     return render_template('matches/prep_detail.html',
                            match=match, red_teams=red_teams, blue_teams=blue_teams,
                            summaries=summaries)
+
+
+@matches_bp.route('/prep/<int:match_id>/tba')
+@login_required
+def prep_tba(match_id):
+    """Lazy-loaded TBA data (rank, past events, videos) for every team in the match.
+
+    Fetches all teams in parallel so cold-cache latency is one TBA round-trip,
+    not N sequential ones.
+    """
+    match = db.session.get(Match, match_id)
+    if not match:
+        abort(404)
+
+    event = db.session.get(Event, match.event_id)
+    event_key = event.tba_event_key if event else None
+
+    team_numbers = (match.red_teams or []) + (match.blue_teams or [])
+    teams = _resolve_teams(team_numbers)
+    tasks = [(t.id, t.number, t.tba_key) for t in teams]
+
+    app = current_app._get_current_object()
+
+    def fetch(task):
+        team_id, number, tba_key = task
+        with app.app_context():
+            return team_id, TeamSummaryService.build_tba(number, tba_key, event_key)
+
+    results = {}
+    if tasks:
+        with ThreadPoolExecutor(max_workers=min(len(tasks), 8)) as pool:
+            for team_id, data in pool.map(fetch, tasks):
+                results[team_id] = data
+
+    return jsonify(results)
 
 
 @matches_bp.route('/<int:match_id>')

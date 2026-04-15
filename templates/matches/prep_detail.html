@@ -23,7 +23,7 @@
         {% endif %}
     </div>
     <div class="card-body">
-        {{ team_summary(team, summaries.get(team.id, {})) }}
+        {{ team_summary(team, summaries.get(team.id, {}), lazy_tba=True) }}
     </div>
 </div>
 {% endmacro %}
@@ -41,4 +41,65 @@
 {% for team in blue_teams %}
     {{ render_team_card(team) }}
 {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+    const url = "{{ url_for('matches.prep_tba', match_id=match.id) }}";
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text == null ? '' : String(text);
+        return div.innerHTML;
+    }
+
+    function renderRank(data) {
+        const rank = data.rank;
+        const past = data.past_events || [];
+        if (!rank && past.length === 0) return '';
+        let rows = '';
+        if (rank) {
+            rows += `<tr><td class="text-muted">Current</td><td class="fw-bold text-end">#${escapeHtml(rank)}</td></tr>`;
+        }
+        for (const evt of past) {
+            rows += `<tr><td class="text-muted text-truncate">${escapeHtml(evt.name)}</td><td class="fw-bold text-end">#${escapeHtml(evt.rank)}</td></tr>`;
+        }
+        return `<table class="table table-sm prep-ranks-table mb-2"><tbody>${rows}</tbody></table>`;
+    }
+
+    function renderVideosButton(teamId) {
+        return `<button class="btn btn-sm btn-outline-primary flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#videos-${teamId}" aria-expanded="false"><i class="bi bi-play-circle"></i> Videos</button>`;
+    }
+
+    function renderVideosCollapse(teamId, videos) {
+        const links = videos.map(v =>
+            `<a href="${escapeHtml(v.url)}" target="_blank" rel="noopener" class="d-block small mb-1"><i class="bi bi-box-arrow-up-right"></i> ${escapeHtml(v.label)}</a>`
+        ).join('');
+        return `<div class="collapse mt-2" id="videos-${teamId}">${links}</div>`;
+    }
+
+    function fillSlot(selector, html) {
+        const el = document.querySelector(selector);
+        if (!el) return;
+        el.outerHTML = html;
+    }
+
+    API.get(url).then(data => {
+        for (const [teamId, summary] of Object.entries(data)) {
+            fillSlot(`[data-tba-rank="${teamId}"]`, renderRank(summary));
+            const videos = summary.videos || [];
+            if (videos.length > 0) {
+                fillSlot(`[data-tba-videos-btn="${teamId}"]`, renderVideosButton(teamId));
+                fillSlot(`[data-tba-videos-collapse="${teamId}"]`, renderVideosCollapse(teamId, videos));
+            } else {
+                fillSlot(`[data-tba-videos-btn="${teamId}"]`, '');
+                fillSlot(`[data-tba-videos-collapse="${teamId}"]`, '');
+            }
+        }
+    }).catch(err => {
+        console.warn('TBA lazy-load failed:', err);
+    });
+})();
+</script>
 {% endblock %}

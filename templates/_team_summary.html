@@ -11,14 +11,16 @@
     </div>
 {% endmacro %}
 
-{% macro team_summary(team, summary) %}
+{% macro team_summary(team, summary, lazy_tba=False) %}
     {% set avgs = summary.averages %}
     {% set robot = summary.robot %}
     {% set rank = summary.rank %}
     {% set past = summary.past_events %}
     {% set videos = summary.videos %}
 
-    {% if rank or past %}
+    {% if lazy_tba %}
+    <div data-tba-rank="{{ team.id }}"></div>
+    {% elif rank or past %}
     <table class="table table-sm prep-ranks-table mb-2">
         <tbody>
             {% if rank %}
@@ -74,7 +76,9 @@
 
     <div class="mb-1">
         <div class="d-flex gap-2">
-            {% if videos %}
+            {% if lazy_tba %}
+            <span data-tba-videos-btn="{{ team.id }}" hidden></span>
+            {% elif videos %}
             <button class="btn btn-sm btn-outline-primary flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#videos-{{ team.id }}" aria-expanded="false">
                 <i class="bi bi-play-circle"></i> Videos
             </button>
@@ -83,7 +87,9 @@
                 <i class="bi bi-box-arrow-up-right"></i> TBA
             </a>
         </div>
-        {% if videos %}
+        {% if lazy_tba %}
+        <div data-tba-videos-collapse="{{ team.id }}"></div>
+        {% elif videos %}
         <div class="collapse mt-2" id="videos-{{ team.id }}">
             {% for v in videos %}
             <a href="{{ v.url }}" target="_blank" rel="noopener" class="d-block small mb-1">

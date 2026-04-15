@@ -9,6 +9,16 @@ class TeamSummaryService:
 
     @staticmethod
     def build(team, event):
+        summary = TeamSummaryService.build_local(team, event)
+        if event:
+            summary.update(TeamSummaryService.build_tba(
+                team.number, team.tba_key, event.tba_event_key
+            ))
+        return summary
+
+    @staticmethod
+    def build_local(team, event):
+        """Fast, DB-only portion of the summary (no external API calls)."""
         summary = {
             'averages': None,
             'robot': None,
@@ -16,7 +26,6 @@ class TeamSummaryService:
             'past_events': [],
             'videos': [],
         }
-
         if not event:
             return summary
 
@@ -26,19 +35,27 @@ class TeamSummaryService:
         if robot and robot.scouting_data:
             summary['robot'] = robot.scouting_data
 
-        if event.tba_event_key:
-            rankings = TeamSummaryService._cached_rankings(event.tba_event_key)
-            summary['rank'] = rankings.get(team.number)
-
-            if team.tba_key:
-                summary['past_events'] = TeamSummaryService._cached_past_events(
-                    team.tba_key, event.tba_event_key
-                )
-                summary['videos'] = TeamSummaryService._cached_videos(
-                    team.tba_key, event.tba_event_key
-                )
-
         return summary
+
+    @staticmethod
+    def build_tba(team_number, team_tba_key, event_tba_key):
+        """Slow, TBA-only portion — safe to call from worker threads."""
+        result = {'rank': None, 'past_events': [], 'videos': []}
+        if not event_tba_key:
+            return result
+
+        rankings = TeamSummaryService._cached_rankings(event_tba_key)
+        result['rank'] = rankings.get(team_number)
+
+        if team_tba_key:
+            result['past_events'] = TeamSummaryService._cached_past_events(
+                team_tba_key, event_tba_key
+            )
+            result['videos'] = TeamSummaryService._cached_videos(
+                team_tba_key, event_tba_key
+            )
+
+        return result
 
     @staticmethod
     def _cached_rankings(event_key):
