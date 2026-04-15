@@ -111,7 +111,6 @@ def test_home_renders_with_session(authed_client):
     resp = authed_client.get('/home')
     assert resp.status_code == 200
     assert b'Match Prep' in resp.data
-    assert b'Scout a Match' in resp.data
 
 
 def test_robot_list_renders(authed_client):

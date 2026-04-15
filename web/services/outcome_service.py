@@ -1,8 +1,13 @@
+from datetime import datetime, timedelta, timezone
+from zoneinfo import ZoneInfo
+
 from sqlalchemy import func
 
 from web.extensions import db
 from web.models.outcome import Outcome
 from web.models.match import Match
+
+EASTERN = ZoneInfo('America/New_York')
 
 
 class OutcomeService:
@@ -44,11 +49,18 @@ class OutcomeService:
     @staticmethod
     def get_event_scout_leaderboard(event_id):
         from web.models.user import User
+        now_eastern = datetime.now(EASTERN)
+        start_eastern = now_eastern.replace(hour=0, minute=0, second=0, microsecond=0)
+        end_eastern = start_eastern + timedelta(days=1)
+        start_utc = start_eastern.astimezone(timezone.utc).replace(tzinfo=None)
+        end_utc = end_eastern.astimezone(timezone.utc).replace(tzinfo=None)
         rows = (
             db.session.query(User.username, func.count(Outcome.id))
             .join(Outcome, Outcome.user_id == User.id)
             .join(Match, Match.id == Outcome.match_id)
             .filter(Match.event_id == event_id)
+            .filter(Outcome.created_at >= start_utc)
+            .filter(Outcome.created_at < end_utc)
             .group_by(User.id, User.username)
             .order_by(func.count(Outcome.id).desc(), User.username)
             .all()

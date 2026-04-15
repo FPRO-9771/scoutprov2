@@ -16,11 +16,18 @@ class AnalyticsService:
     CONFIDENCE_FIELDS = ['auton_balls', 'teleop_balls', 'teleop_defense']
 
     @staticmethod
+    def _active_values(outcomes, field):
+        return [
+            v for o in outcomes
+            if (v := o.scouting_data.get(field)) is not None and v > 0
+        ]
+
+    @staticmethod
     def _field_confidence(values, team_total_matches):
         n = len(values)
         if n == 0 or team_total_matches == 0:
             return None
-        coverage = min(n / team_total_matches, 1.0)
+        frequency = min(n / team_total_matches, 1.0)
         if n < 2:
             consistency = 0.3
         else:
@@ -31,7 +38,7 @@ class AnalyticsService:
                 consistency = max(0.0, 1.0 - min(cv, 1.0))
             else:
                 consistency = 1.0 if sd == 0 else 0.0
-        return round(0.5 * coverage + 0.5 * consistency, 3)
+        return round(0.6 * frequency + 0.4 * consistency, 3)
 
     @staticmethod
     def get_team_match_averages(team_id, event_id):
@@ -44,19 +51,10 @@ class AnalyticsService:
         if not outcomes:
             return None
 
-        totals = {f: 0 for f in AnalyticsService.FIELDS}
-        counts = {f: 0 for f in AnalyticsService.FIELDS}
-
-        for o in outcomes:
-            for f in AnalyticsService.FIELDS:
-                val = o.scouting_data.get(f)
-                if val is not None:
-                    totals[f] += val
-                    counts[f] += 1
-
         averages = {}
         for f in AnalyticsService.FIELDS:
-            averages[f] = round(totals[f] / counts[f], 1) if counts[f] > 0 else None
+            values = AnalyticsService._active_values(outcomes, f)
+            averages[f] = round(sum(values) / len(values), 1) if values else None
 
         return averages
 
@@ -73,7 +71,7 @@ class AnalyticsService:
 
         result = {'count': len(outcomes)}
         for f in AnalyticsService.FIELDS:
-            values = [o.scouting_data.get(f) for o in outcomes if o.scouting_data.get(f) is not None]
+            values = AnalyticsService._active_values(outcomes, f)
             if values:
                 result[f] = {
                     'avg': round(sum(values) / len(values), 1),
@@ -83,10 +81,7 @@ class AnalyticsService:
             else:
                 result[f] = None
 
-        defense_plays = [
-            o.scouting_data.get('teleop_defense') for o in outcomes
-            if o.scouting_data.get('teleop_defense') and o.scouting_data.get('teleop_defense') > 0
-        ]
+        defense_plays = AnalyticsService._active_values(outcomes, 'teleop_defense')
         result['defense_frequency'] = round(len(defense_plays) / len(outcomes) * 100) if outcomes else 0
         result['defense_strength'] = round(sum(defense_plays) / len(defense_plays), 1) if defense_plays else None
         result['defense_plays'] = len(defense_plays)
@@ -161,7 +156,7 @@ class AnalyticsService:
             confidence = {}
             total = team_total_matches.get(team.number, 0)
             for f in AnalyticsService.FIELDS:
-                values = [o.scouting_data.get(f) for o in outcomes if o.scouting_data.get(f) is not None]
+                values = AnalyticsService._active_values(outcomes, f)
                 if values:
                     averages[f] = round(sum(values) / len(values), 1)
                 if f in AnalyticsService.CONFIDENCE_FIELDS:

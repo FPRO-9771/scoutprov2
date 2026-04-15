@@ -616,7 +616,8 @@ main {
     display: flex;
 }
 .match-tabs .nav-item {
-    flex: 1 1 50%;
+    flex: 1 1 0;
+    min-width: 0;
 }
 .match-tabs .nav-link {
     width: 100%;
@@ -637,9 +638,43 @@ main {
     line-height: 1;
 }
 
-/* Defense buttons — larger strong-arm emoji */
-.defense-buttons .btn {
-    font-size: 1.5rem;
+/* Fuel Scored — yellow buttons + larger hint text */
+.fuel-scored .btn-warning,
+.fuel-scored .btn-warning:hover {
+    background-color: #ffd60a;
+    border-color: #ffd60a;
+    color: #3a2f00;
+}
+
+.fuel-scored .btn-outline-warning {
+    color: #a88400;
+    border-color: #ffd60a;
+}
+
+.fuel-scored .btn-outline-warning .ball-dot {
+    background: #ffd60a;
+    opacity: 0.5;
+}
+
+.fuel-scored .btn-warning .ball-dot {
+    background: #fff;
+}
+
+.fuel-explainer {
+    font-size: 1.3125rem !important;
+}
+
+/* Defense buttons — muscle-flex icons laid out horizontally */
+.muscle-icons {
+    display: inline-flex;
+    gap: 2px;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+}
+
+.muscle-icon {
+    font-size: 1.25rem;
     line-height: 1;
 }
 

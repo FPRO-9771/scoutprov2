@@ -85,6 +85,59 @@ document.querySelectorAll('.fuel-scored').forEach(card => {
     });
 });
 
+// Defense — two-stage input (Defended/Didn't Defend → 1-3 selector)
+document.querySelectorAll('.defense-scored').forEach(card => {
+    const input = card.querySelector('input[type="hidden"]');
+    const levels = card.querySelector('.defense-levels');
+    const defendedBtn = card.querySelector('.defense-mode-btn[data-mode="defended"]');
+    const noneBtn = card.querySelector('.defense-mode-btn[data-mode="none"]');
+    const levelBtns = card.querySelectorAll('.defense-level-btn');
+
+    function clearLevels() {
+        levelBtns.forEach(b => {
+            b.classList.remove('btn-success');
+            b.classList.add('btn-outline-success');
+        });
+    }
+
+    defendedBtn.addEventListener('click', () => {
+        defendedBtn.classList.remove('btn-outline-success');
+        defendedBtn.classList.add('btn-success');
+        noneBtn.classList.remove('btn-danger');
+        noneBtn.classList.add('btn-outline-danger');
+        levels.style.display = '';
+        if (!['1','2','3'].includes(input.value)) {
+            input.value = '';
+        }
+    });
+
+    noneBtn.addEventListener('click', () => {
+        noneBtn.classList.remove('btn-outline-danger');
+        noneBtn.classList.add('btn-danger');
+        defendedBtn.classList.remove('btn-success');
+        defendedBtn.classList.add('btn-outline-success');
+        levels.style.display = 'none';
+        clearLevels();
+        input.value = '0';
+    });
+
+    levelBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const n = btn.dataset.level;
+            levelBtns.forEach(b => {
+                if (b.dataset.level === n) {
+                    b.classList.remove('btn-outline-success');
+                    b.classList.add('btn-success');
+                } else {
+                    b.classList.remove('btn-success');
+                    b.classList.add('btn-outline-success');
+                }
+            });
+            input.value = n;
+        });
+    });
+});
+
 // Save confirmation modal
 function confirmMatchSave(teamNumber, matchNumber) {
     const modal = document.getElementById('confirmModal');

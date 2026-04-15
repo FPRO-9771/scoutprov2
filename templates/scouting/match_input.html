@@ -80,15 +80,26 @@
         {{ fuel_scored('teleop', data.get('teleop_balls', '')) }}
 
         <!-- Defense -->
+        {% set dv = data.get('teleop_defense', '')|string %}
+        {% set d_is_level = dv in ['1','2','3'] %}
         <div class="card mb-3">
             <div class="card-header fw-bold">Defense</div>
-            <div class="card-body">
-                <div class="btn-group-toggle d-flex gap-1 defense-buttons">
-                    <input type="hidden" name="teleop_defense" value="{{ data.get('teleop_defense', '') }}">
-                    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('teleop_defense')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '1' else 'btn-outline-success' }}" data-value="1" data-color="success">&#x1F6E1;&#xFE0F;</button>
-                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '2' else 'btn-outline-success' }}" data-value="2" data-color="success">&#x1F6E1;&#xFE0F;&#x1F6E1;&#xFE0F;</button>
-                    <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '3' else 'btn-outline-success' }}" data-value="3" data-color="success">&#x1F6E1;&#xFE0F;&#x1F6E1;&#xFE0F;&#x1F6E1;&#xFE0F;</button>
+            <div class="card-body defense-scored">
+                <input type="hidden" name="teleop_defense" value="{{ data.get('teleop_defense', '') }}">
+                <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn flex-fill defense-mode-btn {{ 'btn-success' if d_is_level else 'btn-outline-success' }}" data-mode="defended">Defended</button>
+                    <button type="button" class="btn flex-fill defense-mode-btn {{ 'btn-danger' if dv == '0' else 'btn-outline-danger' }}" data-mode="none">Didn't Defend</button>
+                </div>
+                <div class="defense-levels" {% if not d_is_level %}style="display:none;"{% endif %}>
+                    <div class="d-flex gap-1">
+                        {% for n in range(1, 4) %}
+                        <button type="button" class="btn flex-fill defense-level-btn {{ 'btn-success' if dv == n|string else 'btn-outline-success' }}" data-level="{{ n }}">
+                            <span class="muscle-icons">
+                                {% for i in range(n) %}<span class="muscle-icon">&#x1F4AA;</span>{% endfor %}
+                            </span>
+                        </button>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
