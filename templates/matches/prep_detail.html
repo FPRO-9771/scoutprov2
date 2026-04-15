@@ -10,6 +10,11 @@
     <h2>Match {{ match.number }} Prep</h2>
 </div>
 
+<div id="tba-loading" class="alert alert-info d-flex align-items-center py-2 mb-3">
+    <div class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></div>
+    <small class="mb-0">Loading rankings & videos from The Blue Alliance…</small>
+</div>
+
 {% macro render_team_card(team) %}
 {% set is_us = team.number == 9771 %}
 <div class="card mb-3 {{ 'border-warning border-2' if is_us else '' }}">
@@ -85,6 +90,8 @@
         el.outerHTML = html;
     }
 
+    const banner = document.getElementById('tba-loading');
+
     API.get(url).then(data => {
         for (const [teamId, summary] of Object.entries(data)) {
             fillSlot(`[data-tba-rank="${teamId}"]`, renderRank(summary));
@@ -97,8 +104,13 @@
                 fillSlot(`[data-tba-videos-collapse="${teamId}"]`, '');
             }
         }
+        if (banner) banner.remove();
     }).catch(err => {
         console.warn('TBA lazy-load failed:', err);
+        if (banner) {
+            banner.className = 'alert alert-warning py-2 mb-3';
+            banner.innerHTML = '<small class="mb-0">Couldn\'t load TBA data — rankings & videos unavailable.</small>';
+        }
     });
 })();
 </script>
