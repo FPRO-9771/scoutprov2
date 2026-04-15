@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, make_response
 
 from web.extensions import db
+from web.services.outcome_service import OutcomeService
 from web.services.user_service import UserService
 
 main_bp = Blueprint('main', __name__)
@@ -17,7 +18,8 @@ def home():
         return redirect(url_for('main.login'))
     if not session.get('event_id'):
         return redirect(url_for('main.select_event'))
-    return render_template('home.html')
+    leaderboard = OutcomeService.get_event_scout_leaderboard(session['event_id'])
+    return render_template('home.html', leaderboard=leaderboard)
 
 
 @main_bp.route('/login', methods=['GET', 'POST'])
@@ -75,7 +77,6 @@ def select_event():
         if event:
             session['event_id'] = event.id
             session['event_name'] = event.name
-            flash(f'Selected event: {event.name}', 'success')
             return redirect(url_for('main.index'))
 
     from web.models.event import Event

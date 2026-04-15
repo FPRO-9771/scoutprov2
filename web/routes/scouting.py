@@ -17,9 +17,16 @@ scouting_bp = Blueprint('scouting', __name__, url_prefix='/scout')
 @login_required
 def robot_list():
     event = db.session.get(Event, session['event_id'])
-    teams = sorted(event.teams, key=lambda t: t.number) if event else []
     scouted = RobotService.get_scouted_status(session['event_id'], event.game_id) if event else {}
-    return render_template('scouting/robot_list.html', teams=teams, scouted=scouted)
+    sort = request.args.get('sort', 'number')
+    if event:
+        if sort == 'status':
+            teams = sorted(event.teams, key=lambda t: (bool(scouted.get(t.id)), t.number))
+        else:
+            teams = sorted(event.teams, key=lambda t: t.number)
+    else:
+        teams = []
+    return render_template('scouting/robot_list.html', teams=teams, scouted=scouted, sort=sort)
 
 
 @scouting_bp.route('/robot/<int:team_number>')
@@ -49,7 +56,6 @@ def robot_save(team_number):
     }
 
     RobotService.save_robot(team.id, event.game_id, scouting_data)
-    flash(f'Saved scouting data for Team {team.number}.', 'success')
     return redirect(url_for('scouting.robot_list'))
 
 
@@ -110,7 +116,6 @@ def match_save(match_id, team_number):
     }
 
     OutcomeService.save_outcome(match_id, team.id, session['user_id'], scouting_data)
-    flash(f'Saved match scouting for Team {team.number} in Match {match.number}.', 'success')
     return redirect(url_for('scouting.match_teams', match_id=match_id))
 
 

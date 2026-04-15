@@ -1,17 +1,31 @@
 {% extends "base.html" %}
 {% block title %}Scout Match {{ match.number }} — Team {{ team.number }} — ScoutPro{% endblock %}
 
-{% macro ball_buttons(name, data_key, max_val) %}
-<div class="btn-group-toggle d-flex gap-1">
-    <input type="hidden" name="{{ name }}" value="{{ data.get(data_key, '') }}">
-    <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get(data_key)|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
-    {% for n in range(1, max_val + 1) %}
-    <button type="button" class="btn flex-fill {{ 'btn-warning' if data.get(data_key)|string == n|string else 'btn-outline-warning' }}" data-value="{{ n }}" data-color="warning">
-        <span class="ball-dots {{ 'dots-' ~ n if n >= 4 }}">
-            {% for i in range(n) %}<span class="ball-dot"></span>{% endfor %}
-        </span>
-    </button>
-    {% endfor %}
+{% macro fuel_scored(prefix, value) %}
+{% set v = value|string %}
+{% set is_level = v in ['1','2','3','4','5'] %}
+{% set explainers = {'1': 'Very few balls scored', '2': 'Scored some, but not impressive', '3': 'Decent — maybe around 100', '4': 'Really good shooting', '5': 'Overwhelming scoring volume'} %}
+<div class="card mb-3">
+    <div class="card-header fw-bold">Fuel Scored</div>
+    <div class="card-body fuel-scored">
+        <input type="hidden" name="{{ prefix }}_balls" value="{{ value }}">
+        <div class="d-flex gap-2 mb-2">
+            <button type="button" class="btn flex-fill fuel-mode-btn {{ 'btn-warning' if is_level else 'btn-outline-warning' }}" data-mode="shot">Shot</button>
+            <button type="button" class="btn flex-fill fuel-mode-btn {{ 'btn-danger' if v == '0' else 'btn-outline-danger' }}" data-mode="none">Didn't Shoot</button>
+        </div>
+        <div class="fuel-levels" {% if not is_level %}style="display:none;"{% endif %}>
+            <div class="d-flex gap-1">
+                {% for n in range(1, 6) %}
+                <button type="button" class="btn flex-fill fuel-level-btn {{ 'btn-warning' if v == n|string else 'btn-outline-warning' }}" data-level="{{ n }}">
+                    <span class="ball-dots {{ 'dots-' ~ n if n >= 4 }}">
+                        {% for i in range(n) %}<span class="ball-dot"></span>{% endfor %}
+                    </span>
+                </button>
+                {% endfor %}
+            </div>
+            <div class="fuel-explainer text-muted small mt-2 text-center">{% if is_level %}{{ explainers[v] }}{% endif %}</div>
+        </div>
+    </div>
 </div>
 {% endmacro %}
 
@@ -39,7 +53,7 @@
 <form id="matchForm" action="{{ url_for('scouting.match_save', match_id=match.id, team_number=team.number) }}" method="post">
 
 <!-- Tabs -->
-<ul class="nav nav-tabs mb-3" role="tablist">
+<ul class="nav nav-tabs match-tabs mb-3" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active fw-bold" data-bs-toggle="tab" data-bs-target="#auton" type="button">Auton</button>
     </li>
@@ -51,12 +65,7 @@
 <div class="tab-content">
     <!-- Auton Tab -->
     <div class="tab-pane fade show active" id="auton" role="tabpanel">
-        <div class="card mb-3">
-            <div class="card-header fw-bold">Balls Scored</div>
-            <div class="card-body">
-                {{ ball_buttons('auton_balls', 'auton_balls', 5) }}
-            </div>
-        </div>
+        {{ fuel_scored('auton', data.get('auton_balls', '')) }}
 
         <div class="card mb-3">
             <div class="card-header fw-bold">Climb</div>
@@ -68,18 +77,13 @@
 
     <!-- Teleop Tab -->
     <div class="tab-pane fade" id="teleop" role="tabpanel">
-        <div class="card mb-3">
-            <div class="card-header fw-bold">Balls Scored</div>
-            <div class="card-body">
-                {{ ball_buttons('teleop_balls', 'teleop_balls', 5) }}
-            </div>
-        </div>
+        {{ fuel_scored('teleop', data.get('teleop_balls', '')) }}
 
         <!-- Defense -->
         <div class="card mb-3">
             <div class="card-header fw-bold">Defense</div>
             <div class="card-body">
-                <div class="btn-group-toggle d-flex gap-1">
+                <div class="btn-group-toggle d-flex gap-1 defense-buttons">
                     <input type="hidden" name="teleop_defense" value="{{ data.get('teleop_defense', '') }}">
                     <button type="button" class="btn flex-fill {{ 'btn-danger' if data.get('teleop_defense')|string == '0' else 'btn-outline-danger' }}" data-value="0" data-color="danger">X</button>
                     <button type="button" class="btn flex-fill {{ 'btn-success' if data.get('teleop_defense')|string == '1' else 'btn-outline-success' }}" data-value="1" data-color="success">&#x1F6E1;&#xFE0F;</button>

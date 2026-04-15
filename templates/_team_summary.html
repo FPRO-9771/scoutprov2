@@ -1,0 +1,121 @@
+{# Reusable team summary card body — expects `team` and `summary` #}
+
+{% macro bar_metric(label, value, max_val, color, suffix='') %}
+    {% set pct = ((value / max_val) * 100) if value is not none and value > 0 else 0 %}
+    <div class="d-flex align-items-center gap-1 mb-1">
+        <small class="prep-label">{{ label }}</small>
+        <div class="prep-bar flex-grow-1">
+            <div class="prep-bar-fill bg-{{ color }}" style="width: {{ pct }}%"></div>
+        </div>
+        <small class="prep-value">{% if value is not none %}{{ value }}{{ suffix }}{% else %}—{% endif %}</small>
+    </div>
+{% endmacro %}
+
+{% macro team_summary(team, summary) %}
+    {% set avgs = summary.averages %}
+    {% set robot = summary.robot %}
+    {% set rank = summary.rank %}
+    {% set past = summary.past_events %}
+    {% set videos = summary.videos %}
+
+    {% if rank or past %}
+    <table class="table table-sm prep-ranks-table mb-2">
+        <tbody>
+            {% if rank %}
+            <tr>
+                <td class="text-muted">Current</td>
+                <td class="fw-bold text-end">#{{ rank }}</td>
+            </tr>
+            {% endif %}
+            {% for evt in past %}
+            <tr>
+                <td class="text-muted text-truncate">{{ evt.name }}</td>
+                <td class="fw-bold text-end">#{{ evt.rank }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if avgs %}
+    <div class="row g-2 mb-2">
+        <div class="col-6">
+            <div class="fw-bold small border-bottom mb-1">Auton</div>
+            {{ bar_metric('Fuel', avgs.auton_balls.avg if avgs.auton_balls else none, 5, 'warning') }}
+            {{ bar_metric('Climb', avgs.auton_climb.avg if avgs.auton_climb else none, 3, 'info') }}
+        </div>
+        <div class="col-6">
+            <div class="fw-bold small border-bottom mb-1">Teleop</div>
+            {{ bar_metric('Fuel', avgs.teleop_balls.avg if avgs.teleop_balls else none, 5, 'warning') }}
+            {{ bar_metric('Climb', avgs.teleop_climb.avg if avgs.teleop_climb else none, 3, 'info') }}
+        </div>
+    </div>
+
+    <div class="mb-2">
+        <div class="fw-bold small border-bottom mb-1">Defense</div>
+        {{ bar_metric('Freq.', avgs.defense_frequency, 100, 'success', suffix='%') }}
+        {{ bar_metric('Str.', avgs.defense_strength, 3, 'success') }}
+    </div>
+
+    <small class="text-muted d-block mb-2">Based on {{ avgs.count }} match{{ 'es' if avgs.count != 1 else '' }}</small>
+    {% endif %}
+
+    {% if robot %}
+    <div class="mb-2">
+        <small class="text-muted fw-bold d-block">Robot Build:</small>
+        <div class="mt-1">
+            {% if robot.drive_system %}<span class="badge bg-secondary me-1">{{ robot.drive_system|title }}</span>{% endif %}
+            {% if robot.ground_intake is not none %}<span class="badge bg-secondary me-1">Intake: {{ 'Yes' if robot.ground_intake else 'No' }}</span>{% endif %}
+            {% if robot.shooter_system %}<span class="badge bg-secondary me-1">{{ robot.shooter_system|title }}</span>{% endif %}
+            {% if robot.climb %}<span class="badge bg-secondary me-1">Climb: {{ robot.climb }}</span>{% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mb-1">
+        <div class="d-flex gap-2">
+            {% if videos %}
+            <button class="btn btn-sm btn-outline-primary flex-grow-1" type="button" data-bs-toggle="collapse" data-bs-target="#videos-{{ team.id }}" aria-expanded="false">
+                <i class="bi bi-play-circle"></i> Videos
+            </button>
+            {% endif %}
+            <a href="https://www.thebluealliance.com/team/{{ team.number }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary flex-grow-1">
+                <i class="bi bi-box-arrow-up-right"></i> TBA
+            </a>
+        </div>
+        {% if videos %}
+        <div class="collapse mt-2" id="videos-{{ team.id }}">
+            {% for v in videos %}
+            <a href="{{ v.url }}" target="_blank" rel="noopener" class="d-block small mb-1">
+                <i class="bi bi-box-arrow-up-right"></i> {{ v.label }}
+            </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not avgs and not robot and not rank and not past %}
+    <small class="text-muted">No data available yet</small>
+    {% endif %}
+{% endmacro %}
+
+{% macro alliance_fuel_summary(teams, summaries, color) %}
+<div class="card mb-2">
+    <div class="card-body py-2 px-3">
+        <div class="fw-bold small text-muted mb-1">Teleop Fuel</div>
+        {% for team in teams %}
+            {% set s = summaries.get(team.id) %}
+            {% set avgs = s.averages if s else none %}
+            {% set fuel = (avgs.teleop_balls.avg if avgs and avgs.teleop_balls else none) %}
+            {% set pct = ((fuel / 5) * 100) if fuel is not none and fuel > 0 else 0 %}
+            <div class="d-flex align-items-center gap-1 mb-1">
+                <small class="prep-label" style="min-width: 48px;">{{ team.number }}</small>
+                <div class="prep-bar flex-grow-1">
+                    <div class="prep-bar-fill bg-{{ color }}" style="width: {{ pct }}%"></div>
+                </div>
+                <small class="prep-value">{% if fuel is not none %}{{ fuel }}{% else %}—{% endif %}</small>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endmacro %}

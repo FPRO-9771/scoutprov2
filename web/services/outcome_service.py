@@ -42,6 +42,20 @@ class OutcomeService:
         return {team_id: count for team_id, count in rows}
 
     @staticmethod
+    def get_event_scout_leaderboard(event_id):
+        from web.models.user import User
+        rows = (
+            db.session.query(User.username, func.count(Outcome.id))
+            .join(Outcome, Outcome.user_id == User.id)
+            .join(Match, Match.id == Outcome.match_id)
+            .filter(Match.event_id == event_id)
+            .group_by(User.id, User.username)
+            .order_by(func.count(Outcome.id).desc(), User.username)
+            .all()
+        )
+        return [{'username': username, 'count': count} for username, count in rows]
+
+    @staticmethod
     def get_event_match_scout_status(event_id):
         matches = Match.query.filter_by(event_id=event_id).order_by(Match.number).all()
         result = {}

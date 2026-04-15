@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_team_summary.html" import team_summary, alliance_fuel_summary %}
 {% block title %}Match {{ match.number }} Prep — ScoutPro{% endblock %}
 
 {% block content %}
@@ -11,10 +12,6 @@
 
 {% macro render_team_card(team) %}
 {% set is_us = team.number == 9771 %}
-{% set avgs = averages.get(team.id) %}
-{% set robot = robots.get(team.id) %}
-{% set rank = rankings.get(team.number) %}
-{% set past = past_events.get(team.number, []) %}
 <div class="card mb-3 {{ 'border-warning border-2' if is_us else '' }}">
     <div class="card-header d-flex justify-content-between align-items-center {{ 'bg-warning bg-opacity-25' if is_us else '' }}">
         <div>
@@ -26,72 +23,21 @@
         {% endif %}
     </div>
     <div class="card-body">
-        {% if rank %}
-        <div class="mb-2">
-            <small class="text-muted fw-bold">Current Rank:</small>
-            <span class="fw-bold">#{{ rank }}</span>
-        </div>
-        {% endif %}
-
-        {% if past %}
-        <div class="mb-2">
-            <small class="text-muted fw-bold d-block">Past Events:</small>
-            {% for evt in past %}
-            <small class="d-block">{{ evt.name }} — Rank #{{ evt.rank }}</small>
-            {% endfor %}
-        </div>
-        {% endif %}
-
-        {% if avgs %}
-        <div class="mb-2">
-            <small class="text-muted fw-bold d-block mb-1">Scouting Averages ({{ avgs.count }} matches):</small>
-            <div class="d-flex flex-wrap gap-1">
-                {% if avgs.auton_balls %}
-                <span class="stat-pill">A-Ball {{ avgs.auton_balls.avg }}</span>
-                {% endif %}
-                {% if avgs.auton_climb %}
-                <span class="stat-pill">A-Climb {{ avgs.auton_climb.avg }}</span>
-                {% endif %}
-                {% if avgs.teleop_balls %}
-                <span class="stat-pill">T-Ball {{ avgs.teleop_balls.avg }}</span>
-                {% endif %}
-                {% if avgs.teleop_defense %}
-                <span class="stat-pill">T-Def {{ avgs.teleop_defense.avg }}</span>
-                {% endif %}
-                {% if avgs.teleop_climb %}
-                <span class="stat-pill">T-Climb {{ avgs.teleop_climb.avg }}</span>
-                {% endif %}
-            </div>
-        </div>
-        {% endif %}
-
-        {% if robot %}
-        <div>
-            <small class="text-muted fw-bold d-block">Robot Build:</small>
-            <div class="mt-1 d-flex flex-wrap gap-1">
-                {% if robot.drive_system %}<span class="badge bg-secondary">{{ robot.drive_system|title }}</span>{% endif %}
-                {% if robot.ground_intake is not none %}<span class="badge bg-secondary">Intake: {{ 'Yes' if robot.ground_intake else 'No' }}</span>{% endif %}
-                {% if robot.shooter_system %}<span class="badge bg-secondary">{{ robot.shooter_system|title }}</span>{% endif %}
-                {% if robot.climb %}<span class="badge bg-secondary">Climb: {{ robot.climb }}</span>{% endif %}
-            </div>
-        </div>
-        {% endif %}
-
-        {% if not avgs and not robot and not rank and not past %}
-        <small class="text-muted">No data available yet</small>
-        {% endif %}
+        {{ team_summary(team, summaries.get(team.id, {})) }}
     </div>
 </div>
 {% endmacro %}
 
 <!-- Red Alliance -->
 <h5 class="text-danger fw-bold mb-2"><i class="bi bi-circle-fill me-1"></i> Red Alliance</h5>
+{{ alliance_fuel_summary(red_teams, summaries, 'danger') }}
 {% for team in red_teams %}
     {{ render_team_card(team) }}
 {% endfor %}
 
 <!-- Blue Alliance -->
 <h5 class="text-primary fw-bold mb-2 mt-4"><i class="bi bi-circle-fill me-1"></i> Blue Alliance</h5>
+{{ alliance_fuel_summary(blue_teams, summaries, 'primary') }}
 {% for team in blue_teams %}
     {{ render_team_card(team) }}
 {% endfor %}

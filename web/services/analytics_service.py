@@ -1,3 +1,5 @@
+import statistics
+
 from sqlalchemy import func
 
 from web.extensions import db
@@ -11,6 +13,25 @@ from web.models.team import Team
 class AnalyticsService:
 
     FIELDS = ['auton_balls', 'auton_climb', 'teleop_balls', 'teleop_defense', 'teleop_climb']
+    CONFIDENCE_FIELDS = ['auton_balls', 'teleop_balls', 'teleop_defense']
+
+    @staticmethod
+    def _field_confidence(values, team_total_matches):
+        n = len(values)
+        if n == 0 or team_total_matches == 0:
+            return None
+        coverage = min(n / team_total_matches, 1.0)
+        if n < 2:
+            consistency = 0.3
+        else:
+            mean = sum(values) / n
+            sd = statistics.stdev(values)
+            if mean > 0:
+                cv = sd / mean
+                consistency = max(0.0, 1.0 - min(cv, 1.0))
+            else:
+                consistency = 1.0 if sd == 0 else 0.0
+        return round(0.5 * coverage + 0.5 * consistency, 3)
 
     @staticmethod
     def get_team_match_averages(team_id, event_id):
@@ -62,6 +83,14 @@ class AnalyticsService:
             else:
                 result[f] = None
 
+        defense_plays = [
+            o.scouting_data.get('teleop_defense') for o in outcomes
+            if o.scouting_data.get('teleop_defense') and o.scouting_data.get('teleop_defense') > 0
+        ]
+        result['defense_frequency'] = round(len(defense_plays) / len(outcomes) * 100) if outcomes else 0
+        result['defense_strength'] = round(sum(defense_plays) / len(defense_plays), 1) if defense_plays else None
+        result['defense_plays'] = len(defense_plays)
+
         return result
 
     @staticmethod
@@ -112,18 +141,37 @@ class AnalyticsService:
         event = db.session.get(Event, event_id)
         if not event:
             return []
+
+        all_matches = Match.query.filter_by(event_id=event_id).all()
+        team_total_matches = {}
+        for m in all_matches:
+            for n in (m.red_teams or []) + (m.blue_teams or []):
+                team_total_matches[n] = team_total_matches.get(n, 0) + 1
+
         results = []
         for team in sorted(event.teams, key=lambda t: t.number):
-            avgs = AnalyticsService.get_team_match_averages(team.id, event_id)
             outcomes = (
                 Outcome.query
                 .join(Match, Outcome.match_id == Match.id)
                 .filter(Match.event_id == event_id, Outcome.team_id == team.id)
                 .all()
             )
+
+            averages = {}
+            confidence = {}
+            total = team_total_matches.get(team.number, 0)
+            for f in AnalyticsService.FIELDS:
+                values = [o.scouting_data.get(f) for o in outcomes if o.scouting_data.get(f) is not None]
+                if values:
+                    averages[f] = round(sum(values) / len(values), 1)
+                if f in AnalyticsService.CONFIDENCE_FIELDS:
+                    confidence[f] = AnalyticsService._field_confidence(values, total)
+
             results.append({
                 'team': team,
-                'averages': avgs or {},
+                'averages': averages,
+                'confidence': confidence,
                 'match_count': len(outcomes),
+                'total_matches': total,
             })
         return results

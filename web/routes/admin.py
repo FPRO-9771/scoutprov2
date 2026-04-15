@@ -38,7 +38,6 @@ def create_game():
         flash('Game name is required.', 'error')
         return redirect(url_for('admin.games'))
     AdminService.create_game(name, logo=logo)
-    flash(f'Created game: {name}', 'success')
     return redirect(url_for('admin.games'))
 
 
@@ -54,7 +53,6 @@ def update_game(game_id):
         flash('Invalid JSON for score config.', 'error')
         return redirect(url_for('admin.games'))
     AdminService.update_game(game_id, name=name, logo=logo, score_config=score_config)
-    flash('Game updated.', 'success')
     return redirect(url_for('admin.games'))
 
 
@@ -89,7 +87,6 @@ def create_event():
             pass
 
     AdminService.create_event(name, game_id, location=location, date=date, tba_event_key=tba_event_key)
-    flash(f'Created event: {name}', 'success')
     return redirect(url_for('admin.events'))
 
 
@@ -109,7 +106,6 @@ def update_event(event_id):
             pass
 
     AdminService.update_event(event_id, name=name, location=location, date=date, tba_event_key=tba_event_key)
-    flash('Event updated.', 'success')
     return redirect(url_for('admin.events'))
 
 
@@ -136,7 +132,6 @@ def add_team():
     event_id = session.get('event_id')
     if event_id:
         AdminService.link_team_to_event(number, event_id)
-    flash(f'Added team {number} to event.', 'success')
     return redirect(url_for('admin.teams'))
 
 
@@ -147,7 +142,6 @@ def unlink_team():
     event_id = session.get('event_id')
     if team_number and event_id:
         AdminService.unlink_team_from_event(team_number, event_id)
-        flash(f'Removed team {team_number} from event.', 'success')
     return redirect(url_for('admin.teams'))
 
 
@@ -185,7 +179,6 @@ def create_match():
         return redirect(url_for('admin.matches'))
 
     AdminService.create_match(event_id, number, red_teams, blue_teams)
-    flash(f'Created match {number}.', 'success')
     return redirect(url_for('admin.matches'))
 
 
@@ -207,7 +200,6 @@ def edit_match(match_id):
     blue_teams = [t for t in blue_teams if t]
 
     AdminService.update_match(match_id, red_teams=red_teams, blue_teams=blue_teams)
-    flash('Match updated.', 'success')
     return redirect(url_for('admin.matches'))
 
 
@@ -228,8 +220,7 @@ def sync_teams():
         flash('No event selected.', 'error')
         return redirect(url_for('admin.tba_sync'))
 
-    count = ImportService.import_event_teams(event_id)
-    flash(f'Synced teams from TBA: {count} teams added/linked.', 'success')
+    ImportService.import_event_teams(event_id)
     return redirect(url_for('admin.tba_sync'))
 
 
@@ -241,6 +232,5 @@ def sync_matches():
         flash('No event selected.', 'error')
         return redirect(url_for('admin.tba_sync'))
 
-    count = ImportService.import_event_matches(event_id)
-    flash(f'Synced matches from TBA: {count} matches imported/updated.', 'success')
+    ImportService.import_event_matches(event_id)
     return redirect(url_for('admin.tba_sync'))

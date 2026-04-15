@@ -12,6 +12,14 @@
     </div>
 </div>
 
+<div class="btn-group btn-group-sm mb-3" role="group" aria-label="Sort robots">
+    <a href="{{ url_for('scouting.robot_list', sort='number') }}"
+       class="btn {{ 'btn-primary' if sort != 'status' else 'btn-outline-primary' }}">By number</a>
+    <a href="{{ url_for('scouting.robot_list', sort='status') }}"
+       class="btn {{ 'btn-primary' if sort == 'status' else 'btn-outline-primary' }}">Unscouted first</a>
+</div>
+
+
 <div class="list-group">
     {% for team in teams %}
     <a href="{{ url_for('scouting.robot_input', team_number=team.number) }}"

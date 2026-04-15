@@ -40,6 +40,11 @@ class TBAService:
         return TBAService._request(f'/team/{team_key}/event/{event_key}/status')
 
     @staticmethod
+    def get_team_event_matches(team_key, event_key):
+        """Matches a team played in at a specific event (includes videos)."""
+        return TBAService._request(f'/team/{team_key}/event/{event_key}/matches')
+
+    @staticmethod
     def _request(endpoint):
         """Shared GET with auth header and error handling."""
         api_key = current_app.config.get('TBA_API_KEY')

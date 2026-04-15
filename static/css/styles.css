@@ -610,3 +610,95 @@ main {
         transform: translateY(0);
     }
 }
+
+/* Match scouting — 50/50 tabs, blue active state */
+.match-tabs {
+    display: flex;
+}
+.match-tabs .nav-item {
+    flex: 1 1 50%;
+}
+.match-tabs .nav-link {
+    width: 100%;
+    text-align: center;
+    color: var(--bs-primary);
+}
+.match-tabs .nav-link.active {
+    background-color: var(--bs-primary);
+    color: #fff;
+    border-color: var(--bs-primary) var(--bs-primary) #fff;
+}
+
+/* Fuel level buttons — keep balls on one line even on narrow phones */
+.fuel-level-btn {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    white-space: nowrap;
+    line-height: 1;
+}
+
+/* Defense buttons — larger strong-arm emoji */
+.defense-buttons .btn {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+/* Team summary — horizontal bar metrics */
+.prep-label {
+    font-size: 0.72rem;
+    color: #6c757d;
+    min-width: 42px;
+    flex-shrink: 0;
+}
+
+.prep-value {
+    font-size: 0.72rem;
+    font-weight: 700;
+    min-width: 32px;
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.prep-bar {
+    height: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.prep-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.25s ease;
+}
+
+/* Compact ranks table in team summary */
+.prep-ranks-table {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem !important;
+}
+
+.prep-ranks-table td {
+    padding: 0.15rem 0.35rem;
+    border: 0;
+    max-width: 180px;
+}
+
+.prep-ranks-table tr + tr td {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Confidence indicator dot for analytics */
+.score-with-confidence {
+    white-space: nowrap;
+}
+
+.confidence-dot {
+    display: inline-block;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    margin-left: 2px;
+    vertical-align: middle;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
