@@ -1,6 +1,9 @@
 from web import create_app
 from web.extensions import db
+from web.models.game import Game
 from web.models.team import Team
+
+GAMES = ['Reefscape', 'Rebuilt']
 
 
 def seed_team_9771():
@@ -15,8 +18,20 @@ def seed_team_9771():
         print('Team 9771 already exists')
 
 
+def seed_games():
+    """Seed FRC games if they don't already exist."""
+    for name in GAMES:
+        if not Game.query.filter_by(name=name).first():
+            db.session.add(Game(name=name, score_config=[]))
+            print(f'Seeded game {name}')
+        else:
+            print(f'Game {name} already exists')
+    db.session.commit()
+
+
 def seed_all():
     seed_team_9771()
+    seed_games()
 
 
 if __name__ == '__main__':

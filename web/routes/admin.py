@@ -209,7 +209,36 @@ def edit_match(match_id):
 @login_required
 def tba_sync():
     event = db.session.get(Event, session.get('event_id'))
-    return render_template('admin/tba_sync.html', event=event)
+    all_games = Game.query.all()
+    return render_template(
+        'admin/tba_sync.html',
+        event=event,
+        games=all_games,
+        current_year=datetime.now().year,
+    )
+
+
+@admin_bp.route('/tba/import-team-events', methods=['POST'])
+@login_required
+def import_team_events():
+    year = request.form.get('year', type=int)
+    game_id = request.form.get('game_id', type=int)
+    team_number = request.form.get('team_number', type=int) or 9771
+
+    if not year or not game_id:
+        flash('Year and game are required.', 'error')
+        return redirect(url_for('admin.tba_sync'))
+
+    created, skipped = ImportService.import_team_events(f'frc{team_number}', year, game_id)
+
+    if created:
+        flash(f'Imported {len(created)} new event(s): {", ".join(created)}', 'success')
+    if skipped:
+        flash(f'Skipped {len(skipped)} existing event(s): {", ".join(skipped)}', 'info')
+    if not created and not skipped:
+        flash(f'No events found for team {team_number} in {year}.', 'warning')
+
+    return redirect(url_for('admin.tba_sync'))
 
 
 @admin_bp.route('/tba/sync-teams', methods=['POST'])

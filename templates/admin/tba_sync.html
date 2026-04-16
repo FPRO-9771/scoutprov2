@@ -9,36 +9,71 @@
     <h2 class="fw-bold text-primary mb-0">TBA Sync</h2>
 </div>
 
-<p class="text-muted">Event: <strong>{{ event.name if event else 'None selected' }}</strong></p>
+<h5 class="fw-bold text-muted text-uppercase small mt-4 mb-2">Import Events</h5>
+<div class="card mb-4">
+    <div class="card-header fw-bold">Import Team Events from TBA</div>
+    <div class="card-body">
+        <p class="text-muted small mb-2">
+            Pull all events a team is attending in a given year. Existing events (matched by TBA key) are skipped — nothing is overwritten.
+        </p>
+        <form action="{{ url_for('admin.import_team_events') }}" method="post">
+            <div class="row g-2 mb-2">
+                <div class="col">
+                    <label class="form-label small fw-bold">Team #</label>
+                    <input type="number" name="team_number" class="form-control" value="9771">
+                </div>
+                <div class="col">
+                    <label class="form-label small fw-bold">Year</label>
+                    <input type="number" name="year" class="form-control" value="{{ current_year }}" required>
+                </div>
+            </div>
+            <div class="mb-2">
+                <label class="form-label small fw-bold">Game</label>
+                <select name="game_id" class="form-select" required>
+                    {% for game in games %}
+                    <option value="{{ game.id }}">{{ game.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-cloud-download"></i> Import Team Events
+            </button>
+        </form>
+    </div>
+</div>
 
+<h5 class="fw-bold text-muted text-uppercase small mt-4 mb-2">Sync Active Event</h5>
 {% if event and event.tba_event_key %}
 <div class="card mb-3">
-    <div class="card-header fw-bold">Sync Teams</div>
     <div class="card-body">
-        <p class="text-muted small mb-2">Re-import all teams for this event from The Blue Alliance.</p>
-        <form action="{{ url_for('admin.sync_teams') }}" method="post">
-            <button type="submit" class="btn btn-info">
-                <i class="bi bi-cloud-download"></i> Sync Event Teams
-            </button>
-        </form>
+        <div class="mb-3">
+            <div class="small text-muted">Currently active event</div>
+            <div class="fw-bold">{{ event.name }}</div>
+            <div class="small text-muted">TBA key: <code>{{ event.tba_event_key }}</code></div>
+        </div>
+        <p class="text-muted small mb-2">Re-import teams and matches for this event from The Blue Alliance.</p>
+        <div class="d-flex gap-2 flex-wrap">
+            <form action="{{ url_for('admin.sync_teams') }}" method="post">
+                <button type="submit" class="btn btn-info">
+                    <i class="bi bi-cloud-download"></i> Sync Teams
+                </button>
+            </form>
+            <form action="{{ url_for('admin.sync_matches') }}" method="post">
+                <button type="submit" class="btn btn-info">
+                    <i class="bi bi-cloud-download"></i> Sync Matches
+                </button>
+            </form>
+        </div>
     </div>
 </div>
-
-<div class="card mb-3">
-    <div class="card-header fw-bold">Sync Matches</div>
-    <div class="card-body">
-        <p class="text-muted small mb-2">Re-import match schedule from The Blue Alliance.</p>
-        <form action="{{ url_for('admin.sync_matches') }}" method="post">
-            <button type="submit" class="btn btn-info">
-                <i class="bi bi-cloud-download"></i> Sync Matches
-            </button>
-        </form>
-    </div>
+{% elif event %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle"></i> <strong>{{ event.name }}</strong> has no TBA event key configured. Set one in
+    <a href="{{ url_for('admin.events') }}">Event Management</a> to enable TBA sync.
 </div>
 {% else %}
-<div class="alert alert-warning">
-    <i class="bi bi-exclamation-triangle"></i> This event has no TBA event key configured. Set one in
-    <a href="{{ url_for('admin.events') }}">Event Management</a> to enable TBA sync.
+<div class="alert alert-secondary">
+    <i class="bi bi-info-circle"></i> No active event selected. Pick one from the event picker to sync teams and matches.
 </div>
 {% endif %}
 {% endblock %}

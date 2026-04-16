@@ -37,6 +37,53 @@ class ImportService:
         return event
 
     @staticmethod
+    def import_team_events(team_key, year, game_id):
+        """Create Event rows for all events a team is attending in a year.
+
+        Skips any event whose tba_event_key is already in the DB so existing
+        events are never overwritten. Returns (created, skipped) lists of names.
+        """
+        tba_events = TBAService.get_team_events(team_key, year)
+        if not tba_events:
+            return [], []
+
+        created, skipped = [], []
+        for tba_event in tba_events:
+            event_key = tba_event.get('key')
+            if not event_key:
+                continue
+
+            if Event.query.filter_by(tba_event_key=event_key).first():
+                skipped.append(tba_event.get('name', event_key))
+                continue
+
+            date = None
+            start_date = tba_event.get('start_date')
+            if start_date:
+                try:
+                    date = datetime.strptime(start_date, '%Y-%m-%d').date()
+                except ValueError:
+                    pass
+
+            city = tba_event.get('city') or ''
+            state = tba_event.get('state_prov') or ''
+            location = ', '.join(p for p in [city, state] if p) or None
+
+            event = Event(
+                tba_event_key=event_key,
+                game_id=game_id,
+                name=tba_event.get('name', event_key),
+                location=location,
+                date=date,
+            )
+            db.session.add(event)
+            created.append(event.name)
+
+        db.session.commit()
+        logger.info(f'Imported {len(created)} new events for {team_key} {year} (skipped {len(skipped)})')
+        return created, skipped
+
+    @staticmethod
     def import_event_teams(event_id):
         """Fetch teams for an event from TBA, upsert into DB, link to event."""
         event = db.session.get(Event, event_id)
