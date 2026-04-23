@@ -20,6 +20,9 @@ class Config:
     # The Blue Alliance API
     TBA_API_KEY = os.environ.get('TBA_API_KEY')
 
+    # Dev-only: treat every match as unplayed so past events render priority UI as if live
+    DEV_PRETEND_UNPLAYED = os.environ.get('DEV_PRETEND_UNPLAYED') == '1'
+
     # Session security
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'

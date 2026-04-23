@@ -1,0 +1,45 @@
+{# Shared priority UI — expects `priority_teams` dict {team_number: 'A'|'O'} and optional `next_match` {match, predicted_time}. #}
+
+{% macro match_priority_class(match, priority_teams) -%}
+    {%- if priority_teams -%}
+        {%- set ns = namespace(found=false) -%}
+        {%- for t in (match.red_teams or []) + (match.blue_teams or []) -%}
+            {%- if t in priority_teams -%}{%- set ns.found = true -%}{%- endif -%}
+        {%- endfor -%}
+        {%- if ns.found -%}priority-tile{%- endif -%}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro priority_badge(team_number, priority_teams) -%}
+    {% set role = priority_teams.get(team_number) if priority_teams else None %}
+    {%- if role == 'A' -%}
+        <span class="priority-badge priority-badge-ally" title="Future alliance partner">A</span>
+    {%- elif role == 'O' -%}
+        <span class="priority-badge priority-badge-opp" title="Future opponent">O</span>
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro next_match_banner(next_match, variant='primary', label='Your next match', icon='stopwatch') %}
+    {% if next_match and next_match.match %}
+    <div class="next-match-banner next-match-banner-{{ variant }} mb-3">
+        <div class="next-match-label">
+            <i class="bi bi-{{ icon }}"></i>
+            <span class="next-match-label-text">{{ label }}</span>
+        </div>
+        <a href="{{ url_for('scouting.match_teams', match_id=next_match.match.id) }}"
+           class="next-match-link">
+            <span class="next-match-number">
+                Qual {{ next_match.match.number }}
+                {% if next_match.priority_count %}
+                    <small class="next-match-meta">
+                        ({{ next_match.priority_count }} priority team{{ '' if next_match.priority_count == 1 else 's' }})
+                    </small>
+                {% endif %}
+            </span>
+            {% if next_match.predicted_time %}
+                <span class="next-match-time" data-unix="{{ next_match.predicted_time }}"></span>
+            {% endif %}
+        </a>
+    </div>
+    {% endif %}
+{% endmacro %}

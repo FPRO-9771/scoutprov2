@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_priority.html" import match_priority_class, next_match_banner %}
 {% block title %}Scout a Match — ScoutPro{% endblock %}
 
 {% block content %}
@@ -12,15 +13,13 @@
     </div>
 </div>
 
+{{ next_match_banner(next_scouting_match, variant='pink', label='Next priority scout', icon='binoculars') }}
+
 <div class="row g-2">
     {% for match in matches %}
     <div class="col" style="flex: 0 0 20%; max-width: 20%;">
-        {% set status = scout_status.get(match.id, 'none') %}
         <a href="{{ url_for('scouting.match_teams', match_id=match.id) }}"
-           class="btn w-100 fw-bold match-btn
-                  {% if status == 'all' %}btn-success
-                  {% elif status == 'partial' %}btn-warning
-                  {% else %}btn-outline-secondary{% endif %}">
+           class="btn w-100 fw-bold match-btn btn-outline-secondary {{ match_priority_class(match, priority_teams) }}">
             {{ match.number }}
         </a>
     </div>
@@ -30,13 +29,22 @@
 {% if not matches %}
 <div class="empty-state">
     <i class="bi bi-grid-3x3 d-block"></i>
-    <p>No matches found at this event.</p>
+    <p>No matches to scout{% if hidden_count %} — {{ hidden_count }} already completed{% endif %}.</p>
 </div>
 {% endif %}
 
-<div class="mt-4 d-flex gap-3 justify-content-center small">
-    <span><span class="scout-status scout-status-done"></span> All scouted</span>
-    <span><span class="scout-status" style="background: var(--bs-warning);"></span> Partial</span>
-    <span><span class="scout-status scout-status-none"></span> None</span>
+{% if hidden_count or show_completed %}
+<div class="mt-3 text-center">
+    {% if show_completed %}
+        <a href="{{ url_for('scouting.match_list') }}" class="btn btn-sm btn-link text-decoration-none">
+            Hide completed matches
+        </a>
+    {% else %}
+        <a href="{{ url_for('scouting.match_list', show_completed=1) }}"
+           class="btn btn-sm btn-link text-decoration-none">
+            Show all ({{ hidden_count }} completed)
+        </a>
+    {% endif %}
 </div>
+{% endif %}
 {% endblock %}

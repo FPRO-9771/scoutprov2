@@ -75,6 +75,21 @@
             setTimeout(() => { btn.disabled = false; form.dataset.submitted = ''; }, 3000);
         }
     });
+
+    // Render next-match-time spans as "in N min" / "N min ago" / time-of-day
+    document.querySelectorAll('.next-match-time[data-unix]').forEach(function(el) {
+        const unix = parseInt(el.dataset.unix, 10);
+        if (!unix) return;
+        const diffMin = Math.round((unix * 1000 - Date.now()) / 60000);
+        const t = new Date(unix * 1000).toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'});
+        if (diffMin > 0 && diffMin < 180) {
+            el.textContent = 'in ~' + diffMin + ' min (' + t + ')';
+        } else if (diffMin <= 0 && diffMin > -30) {
+            el.textContent = 'starting now (' + t + ')';
+        } else {
+            el.textContent = t;
+        }
+    });
     </script>
     {% block scripts %}{% endblock %}
 </body>

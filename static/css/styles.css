@@ -737,3 +737,116 @@ main {
     vertical-align: middle;
     border: 1px solid rgba(0, 0, 0, 0.15);
 }
+
+/* ─── Priority highlighting (scout a match) ─── */
+.priority-tile {
+    background-color: rgba(var(--bs-primary-rgb), 0.18) !important;
+    border-color: var(--bs-primary) !important;
+    color: var(--bs-primary) !important;
+}
+
+.priority-tile:hover,
+.priority-tile:focus {
+    background-color: rgba(var(--bs-primary-rgb), 0.28) !important;
+    color: var(--bs-primary) !important;
+}
+
+.priority-badge {
+    display: inline-block;
+    min-width: 1.4rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.35rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    color: #fff;
+    background: var(--bs-primary);
+}
+
+.priority-badge-opp {
+    background: transparent;
+    color: var(--bs-primary);
+    border: 1.5px solid var(--bs-primary);
+}
+
+.next-match-banner {
+    border: 2px solid;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.next-match-banner-primary {
+    border-color: var(--bs-primary);
+    background: var(--purple-tint);
+}
+
+.next-match-banner-primary .next-match-label,
+.next-match-banner-primary .next-match-link {
+    color: var(--bs-primary);
+}
+
+.next-match-banner-pink {
+    border-color: var(--bs-danger);
+    background: rgba(var(--bs-danger-rgb), 0.06);
+}
+
+.next-match-banner-pink .next-match-label,
+.next-match-banner-pink .next-match-link {
+    color: var(--bs-danger);
+}
+
+.next-match-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.next-match-label .bi {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+
+/* Hide label text on narrow screens — icon alone is enough */
+@media (max-width: 575.98px) {
+    .next-match-label-text {
+        display: none;
+    }
+}
+
+.next-match-link {
+    flex: 1;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.next-match-number {
+    font-size: 1.1rem;
+}
+
+.next-match-meta {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.75;
+    margin-left: 0.25rem;
+}
+
+.next-match-time {
+    font-size: 0.85rem;
+    font-weight: 500;
+    opacity: 0.8;
+}
+

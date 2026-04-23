@@ -6,7 +6,9 @@ from web.models.event import Event
 from web.models.match import Match
 from web.models.team import Team
 from web.services.outcome_service import OutcomeService
+from web.services.priority_service import PriorityService
 from web.services.robot_service import RobotService
+from web.utils.current_team import get_current_team_number
 
 scouting_bp = Blueprint('scouting', __name__, url_prefix='/scout')
 
@@ -65,9 +67,27 @@ def robot_save(team_number):
 @login_required
 def match_list():
     event_id = session['event_id']
-    matches = Match.query.filter_by(event_id=event_id).order_by(Match.number).all()
-    scout_status = OutcomeService.get_event_match_scout_status(event_id)
-    return render_template('scouting/match_list.html', matches=matches, scout_status=scout_status)
+    event = db.session.get(Event, event_id)
+    team_number = get_current_team_number()
+    show_completed = request.args.get('show_completed') == '1'
+
+    all_matches = Match.query.filter_by(event_id=event_id).order_by(Match.number).all()
+    priority_teams = PriorityService.get_priority_teams(event, team_number)
+    completed_keys = PriorityService.get_completed_match_keys(event)
+    next_scouting_match = PriorityService.get_next_scouting_match(event, team_number)
+
+    if show_completed:
+        matches = all_matches
+    else:
+        matches = [m for m in all_matches if not m.tba_match_key or m.tba_match_key not in completed_keys]
+
+    hidden_count = len(all_matches) - len(matches)
+
+    return render_template('scouting/match_list.html',
+                           matches=matches,
+                           priority_teams=priority_teams,
+                           next_scouting_match=next_scouting_match,
+                           show_completed=show_completed, hidden_count=hidden_count)
 
 
 @scouting_bp.route('/match/<int:match_id>')
@@ -84,10 +104,13 @@ def match_teams(match_id):
     red_teams.sort(key=lambda t: red_order.get(t.number, 0))
     blue_teams.sort(key=lambda t: blue_order.get(t.number, 0))
 
+    event = db.session.get(Event, match.event_id)
+    priority_teams = PriorityService.get_priority_teams(event, get_current_team_number())
+
     scout_counts = OutcomeService.get_match_scout_counts(match_id)
     return render_template('scouting/match_teams.html',
                            match=match, red_teams=red_teams, blue_teams=blue_teams,
-                           scout_counts=scout_counts)
+                           scout_counts=scout_counts, priority_teams=priority_teams)
 
 
 @scouting_bp.route('/match/<int:match_id>/team/<int:team_number>')

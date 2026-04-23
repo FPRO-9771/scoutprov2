@@ -1,10 +1,14 @@
 {% extends "base.html" %}
+{% from "_priority.html" import next_match_banner %}
 {% block title %}Home — ScoutPro{% endblock %}
 
 {% block content %}
 <div class="text-center mb-4">
     <h2 class="fw-bold text-primary mb-1">{{ session.get('event_name') }}</h2>
 </div>
+
+{{ next_match_banner(next_match) }}
+{{ next_match_banner(next_scouting_match, variant='pink', label='Next priority scout', icon='binoculars') }}
 
 {% if leaderboard %}
 <div class="card mb-4">
